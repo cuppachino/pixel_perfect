@@ -110,6 +110,7 @@ jobs:
   test:
     name: Tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    needs: features
 
     strategy:
       fail-fast: false
@@ -149,6 +150,7 @@ jobs:
   docs:
     name: Docs
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - uses: actions/checkout@v4
