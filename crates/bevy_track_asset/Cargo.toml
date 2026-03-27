@@ -1,0 +1,32 @@
+[package]
+name = "bevy_track_asset"
+version = "0.1.0"
+edition = "2024"
+resolver = "2"
+license = "MIT OR Apache-2.0"
+authors = ["Jacob Bergholtz <cuppachino.dev@gmail.com>"]
+description = "A Bevy plugin for tracking assets with Bevy's change detection."
+documentation = "https://docs.rs/bevy_track_asset"
+repository = "https://github.com/cuppachino/pixel_perfect"
+readme = "README.md"
+keywords = ["bevy", "gamedev", "assets", "change detection", "hot reload"]
+categories = ["game-development", "rust-patterns"]
+
+[dependencies]
+bevy_app = { workspace = true, optional = true }
+bevy_asset = { workspace = true }
+bevy_ecs = { workspace = true }
+bevy_log = { workspace = true, optional = true }
+bevy_platform = { workspace = true }
+
+[features]
+default = ["bevy_app", "bevy_log"]
+bevy_app = ["dep:bevy_app"]
+bevy_log = ["dep:bevy_log"]
+
+[dev-dependencies]
+bevy = { version = "0.18.1", features = ["file_watcher"] }
+
+[[example]]
+name = "auto_param"
+required-features = ["bevy_app"]
