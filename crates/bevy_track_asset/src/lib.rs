@@ -335,7 +335,7 @@ pub mod prelude {
 
 /// Atomic that tracks if *any* [`AssetTrackingPlugin`]s have been added, to conditionally warn
 /// about missing plugins in `TrackAssetPlugin::finish()`.
-#[cfg(all(debug_assertions, feature = "bevy_app"))]
+#[cfg(all(debug_assertions, feature = "bevy_app", feature = "bevy_log"))]
 static IS_ASSET_TRACKING_PLUGIN_ADDED: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 
@@ -356,7 +356,7 @@ impl<S: ScheduleLabel + Default> Plugin for AssetTrackingPlugin<S> {
             TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
         );
 
-        #[cfg(debug_assertions)]
+        #[cfg(all(debug_assertions, feature = "bevy_log"))]
         IS_ASSET_TRACKING_PLUGIN_ADDED.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 }
@@ -579,7 +579,7 @@ where
     }
 
     /// Warn if the [`AssetTrackingPlugin`] was not added.
-    #[cfg(debug_assertions)]
+    #[cfg(all(debug_assertions, feature = "bevy_log"))]
     fn finish(&self, _app: &mut App) {
         if !IS_ASSET_TRACKING_PLUGIN_ADDED.swap(true, std::sync::atomic::Ordering::Relaxed) {
             warn!(
