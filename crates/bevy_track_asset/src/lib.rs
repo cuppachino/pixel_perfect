@@ -311,9 +311,10 @@ app.add_systems(PostUpdate,
 #[cfg(feature = "bevy_app")]
 use bevy_app::prelude::{App, Plugin, PostUpdate};
 use bevy_asset::prelude::*;
+#[cfg(feature = "bevy_app")]
+use bevy_ecs::schedule::ScheduleLabel;
 use bevy_ecs::{
     prelude::*,
-    schedule::ScheduleLabel,
     system::{StaticSystemParam, SystemParam, SystemParamItem},
 };
 #[cfg(feature = "bevy_log")]
@@ -334,7 +335,7 @@ pub mod prelude {
 
 /// Atomic that tracks if *any* [`AssetTrackingPlugin`]s have been added, to conditionally warn
 /// about missing plugins in `TrackAssetPlugin::finish()`.
-#[cfg(debug_assertions)]
+#[cfg(all(debug_assertions, feature = "bevy_app"))]
 static IS_ASSET_TRACKING_PLUGIN_ADDED: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 
