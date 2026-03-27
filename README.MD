@@ -28,14 +28,14 @@
       art UIs.
 
 - [ ] **Pixel Perfect Camera (2D\3D)**: Pixel-perfect camera plugins for 2d and 3d games.
-  - [] **Responsive Letterboxing\* _Sans Frontières_**: Dynamically adjust a viewport to fit
+  - [ ] **Responsive Letterboxing\* _Sans Frontières_**: Dynamically adjust a viewport to fit
     different screen sizes and aspect ratios.
-    - [] **Resolution-based**: Configure a target resolution, and the camera will scale to fit the
+    - [ ] **Resolution-based**: Configure a target resolution, and the camera will scale to fit the
       maximum viewport while maintaining the minimum aspect ratio, and optionally snap to integer scales to avoid artifacts.
-    - [] **Aspect Ratio-based**: Configure a minimum aspect ratio, and the camera will scale to fit
+    - [ ] **Aspect Ratio-based**: Configure a minimum aspect ratio, and the camera will scale to fit
       the maximum viewport while maintaining the target aspect ratio.
 
-  - [] **Borders (optional)**: Spawn UI Nodes to fill letterboxed areas. Use regular bevy
+  - [ ] **Borders (optional)**: Spawn UI Nodes to fill letterboxed areas. Use regular bevy
     patterns, like Pixel Perfect Nine-Slice, to decorate them.
 
 ## Future
