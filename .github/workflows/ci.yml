@@ -1,0 +1,215 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: --deny warnings
+  RUSTDOCFLAGS: --deny warnings
+
+jobs:
+  # ----------------------------------------
+  # Workspace sanity check
+  # ----------------------------------------
+  check:
+    name: Check (workspace)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install Linux dependencies (Bevy)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev
+
+      - name: Cargo check
+        run: cargo check --workspace --all-targets --all-features
+
+  # ----------------------------------------
+  # Per-crate feature validation (KEY JOB)
+  # ----------------------------------------
+  features:
+    name: Per-Crate Features
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install Linux dependencies (Bevy)
+        run: |
+          sudo apt-get install --no-install-recommends -y \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev
+
+      - name: Check each crate with feature combinations
+        run: |
+          set -e
+
+          cargo metadata --no-deps --format-version=1 > meta.json
+
+          jq -c '.packages[]' meta.json | while read pkg; do
+            NAME=$(echo "$pkg" | jq -r '.name')
+            FEATURES=$(echo "$pkg" | jq -r '.features | keys[]?')
+
+            echo "=============================="
+            echo "Crate: $NAME"
+            echo "=============================="
+
+            echo "--- no features ---"
+            cargo check -p $NAME --no-default-features
+
+            for feat in $FEATURES; do
+              echo "--- feature: $feat ---"
+              cargo check -p $NAME --no-default-features --features $feat
+            done
+
+            echo "--- all features ---"
+            cargo check -p $NAME --all-features
+          done
+
+  # ----------------------------------------
+  # Tests (cross-platform)
+  # ----------------------------------------
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install Linux dependencies (Bevy)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev
+
+      - name: Run tests
+        run: cargo test --workspace --all-features
+
+  # ----------------------------------------
+  # Documentation
+  # ----------------------------------------
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install Linux dependencies (Bevy)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev
+
+      - name: Build docs
+        run: cargo doc --workspace --no-deps
+
+  # ----------------------------------------
+  # Linting
+  # ----------------------------------------
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install Linux dependencies (Bevy)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
