@@ -319,7 +319,7 @@ use bevy_ecs::{
 };
 #[cfg(feature = "bevy_log")]
 use bevy_log::info;
-#[cfg(feature = "bevy_app")]
+#[cfg(all(feature = "bevy_log", feature = "bevy_app"))]
 use bevy_log::warn;
 use bevy_platform::collections::HashSet;
 
