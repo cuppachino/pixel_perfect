@@ -7,11 +7,44 @@
 
 🚧👷
 
-## Roadmap
+## Road to 0.1
 
-- [x] **Bevy Track Asset**: Utility for propagating asset reloads to dependent ECS data.
-  - [ ] **Raster Font**: Custom bitmap-like fonts with, with support for ligatures and other niceties.
-    - [ ] **Raster Text Renderers**: Multiple "Raster Font" text renderers for different use cases.
-  - [ ] **Pixel Perfect Nine-Slice**: A 9-slice plugin that maintains its source pixel density, unlike Bevy's built-in `NineSlice` which stretches the source texture. Ideal for pixel art UIs.
-- [ ] **Pixel Perfect Camera 2d\3d**: Pixel-perfect camera plugins for 2d and 3d games. Proper "letterboxing sans borders" when the window's aspect ratio doesn't match the target aspect ratio, and optional pixel-snapping. Ideal for games that want to look crisp at any resolution and any aspect ratio.
-- [ ] **Gouraud Material**: Gouraud-shaded material for "old-school" 3D graphics, with support for dynamic lighting. Ideal for low-poly models that want to look good without normal maps.
+1. [x] **Bevy Track Asset**: Utility for propagating asset reloads to dependent ECS data.
+
+2. [ ] **Raster Font**: Custom bitmap-like fonts with new-lines, text-wrapping, ligatures, and
+       other niceties.
+   - **Text Renderers**: Strategies for rendering text to image targets.
+     - [ ] **Composite**: Multiple glyphs batched into a single image target.
+     - [ ] **Per-Glyph**: Each glyph rendered to its own image target.
+
+   - **Text Targets**: Various render targets for different use cases, e.g. UI vs world
+     text.
+     - [ ] **Bevy UI**: `ImageNode`
+     - [ ] **Bevy 2D**: `Sprite`
+     - [ ] **Bevy 3D**: _todo_
+
+- [ ] **Pixel Perfect Nine-Slice**: A 9-slice plugin that maintains its source pixel density,
+      unlike Bevy's built-in `NineSlice` which stretches the source texture. Ideal for pixel
+      art UIs.
+
+- [ ] **Pixel Perfect Camera (2D\3D)**: Pixel-perfect camera plugins for 2d and 3d games.
+  - [] **Responsive Letterboxing\* _Sans Frontières_**: Dynamically adjust a viewport to fit
+    different screen sizes and aspect ratios.
+    - [] **Resolution-based**: Configure a target resolution, and the camera will scale to fit the
+      maximum viewport while maintaining the minimum aspect ratio, and optionally snap to integer scales to avoid artifacts.
+    - [] **Aspect Ratio-based**: Configure a minimum aspect ratio, and the camera will scale to fit
+      the maximum viewport while maintaining the target aspect ratio.
+
+  - [] **Borders (optional)**: Spawn UI Nodes to fill letterboxed areas. Use regular bevy
+    patterns, like Pixel Perfect Nine-Slice, to decorate them.
+
+## Future
+
+- **CRT Shaders**: Emulate the look of old CRT monitors, with options for scanlines, curvature, etc.
+  Ideal for games that want to evoke a retro aesthetic.
+  - [ ] **Fullscreen Post-processing**
+  - [ ] **ExtendedMaterial**
+  - [ ] **UiMaterial**
+
+- **Gouraud Shader (3D)**: Gouraud-shaded material for "old-school" 3D graphics, with support
+  for dynamic lighting. Ideal for low-poly models that want to look good without normal maps.
