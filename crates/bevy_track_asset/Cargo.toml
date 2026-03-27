@@ -9,7 +9,7 @@ description = "A Bevy plugin for tracking assets with Bevy's change detection."
 documentation = "https://docs.rs/bevy_track_asset"
 repository = "https://github.com/cuppachino/pixel_perfect"
 readme = "README.md"
-keywords = ["bevy", "gamedev", "assets", "change detection", "hot reload"]
+keywords = ["bevy", "gamedev", "asset", "change", "reload"]
 categories = ["game-development", "rust-patterns"]
 
 [dependencies]
