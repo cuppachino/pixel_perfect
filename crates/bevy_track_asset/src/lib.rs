@@ -1,6 +1,3 @@
-#![doc(
-    html_logo_url = "https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/crates/bevy_track_asset/assets/brand/logo.svg"
-)]
 //! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/crates/bevy_track_asset/assets/brand/logo.svg)
 //!
 //! Utility for tracking asset reloads and propagating changes to dependent ECS data.
