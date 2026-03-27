@@ -1,4 +1,4 @@
-# ![Pixel Perfect](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo.svg)
+# ![Pixel Perfect](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/bevy_track_asset-v0.1.0/assets/brand/logo/pixel_perfect.svg)
 
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/cuppachino/pixel_perfect#license)
 [![CI](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml)
