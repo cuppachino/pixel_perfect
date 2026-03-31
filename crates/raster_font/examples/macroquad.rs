@@ -22,7 +22,7 @@ pub struct FontAtlas {
 }
 
 impl SpriteSheet for FontAtlas {
-    /// Resolves an [`AtlasIndex`] to its [`UTokenProps`] (UV rect + draw offset).
+    /// UV rect + draw offset.
     type Props = Option<UTokenProps>;
 
     /// Returns `None` if the index is out of bounds for the glyphs vector,

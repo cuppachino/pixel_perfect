@@ -16,12 +16,15 @@
 //! by calling [`RasterFont::upgrade`](crate::backend::RasterFont::upgrade):
 //!
 //! ```rust
-//! # use raster_font::{backend::prelude::*, tree::InputResolver};
-//! # use bevy_asset::Assets;
-//! # use bevy_image::TextureAtlasLayout;
-//! #
+//! use raster_font::prelude::*;
+//! # #[cfg(feature = "bevy")]
+//! use bevy_asset::Assets;
+//! # #[cfg(feature = "bevy")]
+//! use bevy_image::TextureAtlasLayout;
+//!
+//! # #[cfg(feature = "bevy")]
 //! fn draw(
-//!     font: &RasterFont<BevyBackend>,
+//!     font: &RasterFont,
 //!     atlases: &Assets<TextureAtlasLayout>,
 //! ) {
 //!     let Ok(ctx) = font.upgrade(atlases) else { return };
