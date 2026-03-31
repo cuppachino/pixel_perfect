@@ -9,10 +9,13 @@
 
 ## Road to 0.1
 
-1. [x] **Bevy Track Asset**: Utility for propagating asset reloads to dependent ECS data.
+1. [x] **[`bevy_track_asset`](https://crates.io/bevy_track_asset/latest/bevy_track_asset/)**:
+       Utility for propagating asset reloads to dependent ECS data.
 
 2. [ ] **Raster Font**: Custom bitmap-like fonts with new-lines, text-wrapping, ligatures, and
        other niceties.
+   - [x] **[`raster_font`](https://crates.io/raster_font/latest/raster_font/)**: A simple, backend-agnostic format for defining glyphs and their layout.
+
    - **Text Renderers**: Strategies for rendering text to image targets.
      - [ ] **Composite**: Multiple glyphs batched into a single image target.
      - [ ] **Per-Glyph**: Each glyph rendered to its own image target.
@@ -29,14 +32,14 @@
 
 - [ ] **Pixel Perfect Camera (2D\3D)**: Pixel-perfect camera plugins for 2d and 3d games.
   - [ ] **Responsive Letterboxing\* _Sans Frontières_**: Dynamically adjust a viewport to fit
-    different screen sizes and aspect ratios.
+        different screen sizes and aspect ratios.
     - [ ] **Resolution-based**: Configure a target resolution, and the camera will scale to fit the
-      maximum viewport while maintaining the minimum aspect ratio, and optionally snap to integer scales to avoid artifacts.
+          maximum viewport while maintaining the minimum aspect ratio, and optionally snap to integer scales to avoid artifacts.
     - [ ] **Aspect Ratio-based**: Configure a minimum aspect ratio, and the camera will scale to fit
-      the maximum viewport while maintaining the target aspect ratio.
+          the maximum viewport while maintaining the target aspect ratio.
 
   - [ ] **Borders (optional)**: Spawn UI Nodes to fill letterboxed areas. Use regular bevy
-    patterns, like Pixel Perfect Nine-Slice, to decorate them.
+        patterns, like Pixel Perfect Nine-Slice, to decorate them.
 
 ## Future
 
