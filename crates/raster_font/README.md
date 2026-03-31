@@ -1,4 +1,4 @@
-# ![Raster Font](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/raster_font-v0.1.0/assets/brand/logo/raster_font.svg)
+# ![Raster Font]
 
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/cuppachino/pixel_perfect#license)
 [![CI](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml)
@@ -66,6 +66,12 @@ Matching is leftmost-longest, so sequences like `->` naturally take precedence o
 |       `bevy`        | Enables Bevy asset loading and integration           |
 | `font_sequence_map` | Enables direct sequence lookup via `RasterFont::get` |
 
+## Backend Examples
+
+- [`bevy_asset`]: Demonstrates using the 1st-party `BevyBackend` to load `RasterFont` assets in the
+  [Bevy game engine](https://bevy.org/).
+- [`macroquad`]: Minimal backend example for [Macroquad](https://macroquad.rs/)
+
 ## Docs
 
 Full usage including custom backends, layout syntax, and advanced glyph extraction are exhaustively
@@ -73,11 +79,14 @@ documented at [docs.rs/raster_font](https://docs.rs/raster_font).
 
 ## Roadmap
 
-- [ ] **BIDI**: Unicode code points and bidirectional text layout. (right-to-left scripts, and
+- [ ] **BIDI**: Allow unicode to support bidirectional text layout. (right-to-left scripts, and
       mixing of left-to-right and right-to-left text)
 - [ ] **Contextual glyph substitution**: e.g. when `S` is followed by `T`, allow substitution of
       `S` instead of `ST` to enable kerning and ligatures without
       needing to define separate sequences and glyphs for every combination of characters.
-- [ ] **More backends**: currently only Bevy is supported, but the API is designed
-      to be backend-agnostic and should be implementable for any 2D rendering engine
-      with a concept of sprite sheets.
+- [ ] **More backends**: Raster Font only has one 1st-party backend (bevy), but the API is designed
+      to be backend-agnostic, as long as they have some concept of an image.
+
+[`bevy_asset`]: https://github.com/cuppachino/pixel_perfect/blob/raster_font-v0.1.0/crates/raster_font/examples/bevy_asset.rs
+[`macroquad`]: https://github.com/cuppachino/pixel_perfect/blob/raster_font-v0.1.0/crates/raster_font/examples/macroquad.rs
+[Raster Font]: https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/raster_font-v0.1.0/assets/brand/logo/raster_font.svg

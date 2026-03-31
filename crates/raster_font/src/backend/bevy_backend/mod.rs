@@ -17,7 +17,6 @@
 //!
 //! ```rust
 //! # use raster_font::{backend::prelude::*, tree::InputResolver};
-//! # use raster_font::bevy_backend::BevyBackend;
 //! # use bevy_asset::Assets;
 //! # use bevy_image::TextureAtlasLayout;
 //! #

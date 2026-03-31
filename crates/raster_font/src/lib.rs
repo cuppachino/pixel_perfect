@@ -138,12 +138,14 @@
 //! use raster_font::prelude::*;
 //!
 //! fn main() {
+//! # #[cfg(feature = "bevy")]
 //!     App::new()
 //!         .add_plugins((DefaultPlugins, RasterFontAssetLoaderPlugin))
 //!         .add_systems(Startup, load_font)
 //!         .run();
 //! }
 //!
+//! # #[cfg(feature = "bevy")]
 //! fn load_font(asset_server: Res<AssetServer>) {
 //!     let _font: Handle<RasterFont> =
 //!         asset_server.load("font.toml");
