@@ -9,12 +9,12 @@
 
 ## Road to 0.1
 
-1. [x] **[`bevy_track_asset`](https://crates.io/bevy_track_asset/latest/bevy_track_asset/)**:
+1. [x] **[`bevy_track_asset`](https://crates.io/bevy_track_asset)**:
        Utility for propagating asset reloads to dependent ECS data.
 
 2. [ ] **Raster Font**: Custom bitmap-like fonts with new-lines, text-wrapping, ligatures, and
        other niceties.
-   - [x] **[`raster_font`](https://crates.io/raster_font/latest/raster_font/)**: A simple, backend-agnostic format for defining glyphs and their layout.
+   - [x] **[`raster_font`](https://crates.io/raster_font)**: A simple, backend-agnostic format for defining glyphs and their layout.
 
    - **Text Renderers**: Strategies for rendering text to image targets.
      - [ ] **Composite**: Multiple glyphs batched into a single image target.
