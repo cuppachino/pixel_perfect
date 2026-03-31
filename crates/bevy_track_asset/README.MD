@@ -19,6 +19,8 @@ bevy_track_asset = "0.1"
 
 ## Quick Start
 
+Configure the `TrackAssetSystems` system set in your app:
+
 ```rust
 use bevy::prelude::*;
 use bevy_track_asset::prelude::*;
@@ -27,7 +29,7 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            AssetTrackingPlugin::<PostUpdate>::default(),
+            AssetTrackingPlugin::default(), // AssetTrackingPlugin::<PostUpdate>::new(),
         ));
 }
 ```

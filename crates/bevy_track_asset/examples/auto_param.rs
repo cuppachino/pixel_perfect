@@ -46,34 +46,26 @@ fn main() -> AppExit {
             PostUpdate,
             TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
         );
-
-        // Trigger bevy's change detection for items that depend on the reloaded asset.
-        app.add_systems(
-            PostUpdate,
-            (
-                set_changed_on_asset_reload_system::<Image, Query<&mut UseImage>>,
-                set_changed_on_asset_reload_system::<Image, TrackResMut<UseImage>>,
-            )
-                .in_set(TrackAssetSystems::Watcher),
-        );
     }
     #[cfg(feature = "bevy_app")]
     {
-        // With the `bevy_app` feature enabled, add the `AssetTrackingPlugin` to automatically
-        // configure the `TrackAssetSystems` system set in the schedule of your choice.
-        // Most bevy users will use `PostUpdate`.
-        app.add_plugins(AssetTrackingPlugin::<PostUpdate>::default());
-
-        // Trigger bevy's change detection for items that depend on the reloaded asset.
-        app.add_plugins(TrackAssetPlugin::<Image, Query<&mut UseImage>>::default());
-        app.add_plugins(TrackAssetPlugin::<Image, TrackResMut<UseImage>>::default());
+        // With the `bevy_app` feature enabled, the `AssetTrackingPlugin` configures
+        // the `TrackAssetSystems` system set in a schedule of your choice.
+        // Default is `PostUpdate`.
+        app.add_plugins(AssetTrackingPlugin::default());
     }
 
     app.add_systems(Startup, load_image)
         .add_systems(Update, greeting_system)
         .add_systems(
             PostUpdate,
-            handle_changed_image_system.in_set(TrackAssetSystems::Reload),
+            (
+                // Trigger bevy's change detection for items that depend on the reloaded asset.
+                set_changed_on_asset_reload_system::<Image, Query<&mut UseImage>>(),
+                set_changed_on_asset_reload_system::<Image, TrackResMut<UseImage>>(),
+                // Handle changes
+                handle_changed_image_system.in_set(TrackAssetSystems::Reload),
+            ),
         );
 
     app.run()
@@ -81,10 +73,12 @@ fn main() -> AppExit {
 
 /// Loads an image asset and creates 2 dependents of it.
 fn load_image(mut commands: Commands, asset_server: ResMut<AssetServer>) {
-    let image: Handle<Image> =
-        asset_server.load_with_settings("brand/logo.png", |s: &mut ImageLoaderSettings| {
+    let image: Handle<Image> = asset_server.load_with_settings(
+        "brand/logo/bevy_track_asset.png",
+        |s: &mut ImageLoaderSettings| {
             s.sampler = ImageSampler::nearest();
-        });
+        },
+    );
 
     info!("Begin load: {image:?}");
 
