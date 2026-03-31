@@ -95,7 +95,7 @@ fn main() {
 //!
 //! Add [`set_changed_on_asset_reload_system`] to your app, specifying the asset type and a
 //! system param that provides access to the items you want to track (e.g. `Query<&mut ShaderUser>`).
-//! The system is automatically added to the [`Watcher`] system set, but may be further configured.
+//! The system is automatically added to the [`Watcher`](TrackAssetSystems::Watcher) system set, but may be further configured.
 //!
 //! ```no_run
 //! # use bevy::prelude::*;
