@@ -1,6 +1,5 @@
 [workspace]
-default-members = ["pixel_perfect"]
-members = ["pixel_perfect", "crates/*"]
+members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]

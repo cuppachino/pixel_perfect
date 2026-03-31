@@ -4030,27 +4030,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pixel_perfect"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_app",
- "bevy_asset",
- "bevy_color",
- "bevy_derive",
- "bevy_ecs",
- "bevy_image",
- "bevy_math",
- "bevy_platform",
- "bevy_reflect",
- "bevy_render",
- "bevy_sprite",
- "bevy_ui",
- "raster_font",
- "serde",
-]
-
-[[package]]
 name = "pkg-config"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
