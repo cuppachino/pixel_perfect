@@ -286,7 +286,6 @@ pub trait InputResolver<T>: AsLigatureTree<T> + MapLigature<T> {
     ) -> impl Iterator<Item = Result<Self::Output, std::io::Error>>
     where
         T: 'a,
-        R: 'a,
     {
         self.as_ligature_tree()
             .valid_stream(stream)

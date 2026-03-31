@@ -146,11 +146,12 @@ pub trait SpriteSheet {
 ///
 /// # Associated types
 /// - **[`Backend`](Self::Backend)**: the backend this provider is compatible with.
-///     This must match the backend of the font being upgraded.
+///   This must match the backend of the font being upgraded.
+///
 /// - **[`Output`](Self::Output)**: the type of the resolved resources view returned by
-///     [`upgrade_font`](Self::upgrade_font). This is typically a wrapper around borrowed
-///     backend assets (e.g. a Bevy `TextureAtlas`), and must implement
-///     [`SpriteSheet`] to be usable for glyph resolution in a [`RasterFontCtx`].
+///   [`upgrade_font`](Self::upgrade_font). This is typically a wrapper around borrowed
+///   backend assets (e.g. a Bevy `TextureAtlas`), and must implement [`SpriteSheet`] to be
+///   usable for glyph resolution in a [`RasterFontCtx`].
 pub trait FontResourceProvider {
     type Backend: Backend;
     type Error: Error;
@@ -264,10 +265,7 @@ impl<B: Backend> AsRef<LigatureTree<AtlasIndex>> for RasterFont<B> {
 /// any extra boilerplate.
 ///
 /// [`InputResolver`]: crate::tree::InputResolver
-impl<'f, 'r, B: Backend> MapLigature<AtlasIndex> for RasterFont<B>
-where
-    B::Resources: SpriteSheet,
-{
+impl<B: Backend<Resources: SpriteSheet>> MapLigature<AtlasIndex> for RasterFont<B> {
     type Output = Option<UTokenProps>;
 
     fn map_ligature(&self, index: &AtlasIndex) -> Self::Output {

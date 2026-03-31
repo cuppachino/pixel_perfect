@@ -499,6 +499,7 @@ impl<Sheet: ImageMarker, Named: Marker> FontAtlasBuilder<Populated, Unpopulated,
         iter: impl IntoIterator<Item = (&'a Token, &'a CustomGlyph)>,
     ) -> Result<FontAtlasBuilder<Populated, Populated, Sheet, Named>, UnknownSequence> {
         for (token, sub_glyph) in iter {
+            #[allow(clippy::match_ref_pats)]
             let props = match sub_glyph {
                 &CustomGlyph::Absolute { offset, region } => UTokenProps { offset, region },
                 &CustomGlyph::Relative {
@@ -554,7 +555,7 @@ where
     ///
     /// - [`EmptyFont`]: no glyphs were registered.
     /// - [`BackendBuilderError`](errors::FontBuilderError::BackendBuilderError): the backend
-    ///     returned an error.
+    ///   returned an error.
     /// - [`LigatureBindingError`](errors::FontBuilderError::LigatureBindingError): the
     ///   Aho-Corasick automaton failed to compile.
     ///

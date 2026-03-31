@@ -91,8 +91,8 @@ pub struct FontLayout {
 /// Determines how the atlas builder's *view* moves after analyzing a token's glyph region.
 ///
 /// - *view*: The region of the font texture that a builder is analyzing
-/// for glyph extraction. After analyzing a token, the builder moves the view according to the
-/// packing mode before analyzing the next token.
+///   for glyph extraction. After analyzing a token, the builder moves the view according
+///   to the packing mode before analyzing the next token.
 ///
 /// Glyphs may capture pixels outside of their grid tile.
 ///
@@ -287,6 +287,7 @@ impl FontLayout {
     /// Returns the a flattened iterator of all sequences in `self`, including tokens in the ordered
     /// token layout and any extracted custom glyphs.
     #[inline]
+    #[allow(clippy::type_complexity)]
     pub fn iter_sequences(
         &'_ self,
     ) -> FlatMap<GlyphIter<'_>, Iter<'_, Sequence>, fn(&Token) -> Iter<Sequence>> {

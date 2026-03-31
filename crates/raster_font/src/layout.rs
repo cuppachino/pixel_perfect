@@ -156,7 +156,7 @@ impl OrdTokenLayout {
 
     /// Push a new token into the layout, and return the modified layout for chaining.
     #[inline]
-    pub fn add(mut self, token: impl Into<Token>) -> Self {
+    pub fn with(mut self, token: impl Into<Token>) -> Self {
         self.0.push(token.into());
         self
     }
@@ -386,7 +386,7 @@ mod tests {
     fn with_spaces() -> Result<(), TokenParsingError> {
         let text = r#"$( a \4 \$(b\) | $b )"#;
 
-        let tokens = OrdTokenLayout::from_str(&text)?;
+        let tokens = OrdTokenLayout::from_str(text)?;
         let expected = OrdTokenLayout(vec![Token::from(vec![
             Sequence::new_unchecked(" a 4 $(b) "),
             Sequence::new_unchecked(" $b "),

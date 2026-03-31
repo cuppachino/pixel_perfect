@@ -175,6 +175,14 @@ impl Sequence {
     pub fn len(&self) -> usize {
         self.0.chars().count()
     }
+
+    /// Returns `true` if this sequence contains no characters.
+    ///
+    /// Since empty sequences are not allowed, this should always return `false` for valid `Sequence`s.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
 
 impl From<Vec<Sequence>> for Token {
@@ -262,7 +270,7 @@ impl TryFrom<Token> for Sequence {
     #[inline]
     fn try_from(token: Token) -> Result<Self, Self::Error> {
         if token.len() > 1 {
-            return Err(IntoSequenceError::ExpectedSingleSequence(token));
+            Err(IntoSequenceError::ExpectedSingleSequence(token))
         } else {
             token
                 .into_iter()
@@ -301,6 +309,12 @@ impl Token {
     #[inline]
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    /// Returns `true` if this token contains no sequences.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 
@@ -378,8 +392,6 @@ impl FromStr for Token {
 
     /// Parse a token from a string. This can be a single character, a multi-character string, or a union of tokens (e.g., `$(a|b|c)`).
     fn from_str(input: &str) -> std::result::Result<Self, Self::Err> {
-        let input = input.as_ref();
-
         let mut pairs = match LayoutParser::parse(Rule::single_token, input) {
             Ok(pairs) => pairs,
             Err(e) => {
