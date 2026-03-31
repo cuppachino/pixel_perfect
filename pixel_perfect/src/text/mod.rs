@@ -53,13 +53,9 @@ pub struct RasterTextSystems;
       with respect to the current UI scale, and the node's [`FontScaling`] mode."
 )]
 #[derive(Clone, Debug)]
-#[cfg_attr(
-    feature = "bevy",
-    derive(Component, Reflect),
-    reflect(Component),
-    require(RasterTextColor)
-)]
+#[cfg_attr(feature = "bevy", derive(Component, Reflect), reflect(Component))]
 #[cfg_attr(feature = "bevy_ui", require(FontScaling))]
+#[cfg_attr(any(feature = "bevy_ui", "bevy_2d"), require(RasterTextColor))]
 pub struct RasterText<B: Backend> {
     /// Handle to the raster font asset.
     pub font: Handle<B::Font>, // todo
@@ -90,33 +86,33 @@ impl<B: Backend> AsRef<[u8]> for RasterText<B> {
 /// component (e.g. [`CompositeText`]) to have an effect.
 ///
 /// This is a separate component to allow independent changes from the text content.
-#[cfg(feature = "bevy")]
+#[cfg(any(feature = "bevy_ui", feature = "bevy_2d"))]
 #[derive(Component, Clone, Copy, Debug, Default, Reflect)]
-#[reflect(Component)]
+#[reflect(Component, Clone, Debug, Default)]
 pub struct RasterTextColor(pub Color);
 
-#[cfg(feature = "bevy")]
+#[cfg(any(feature = "bevy_ui", feature = "bevy_2d"))]
 impl From<Color> for RasterTextColor {
     #[inline]
     fn from(color: Color) -> Self {
         Self(color)
     }
 }
-#[cfg(feature = "bevy")]
+#[cfg(any(feature = "bevy_ui", feature = "bevy_2d"))]
 impl From<&Color> for RasterTextColor {
     #[inline]
     fn from(color: &Color) -> Self {
         Self(*color)
     }
 }
-#[cfg(feature = "bevy")]
+#[cfg(any(feature = "bevy_ui", feature = "bevy_2d"))]
 impl From<&RasterTextColor> for Color {
     #[inline]
     fn from(color: &RasterTextColor) -> Self {
         color.0
     }
 }
-#[cfg(feature = "bevy")]
+#[cfg(any(feature = "bevy_ui", feature = "bevy_2d"))]
 impl From<RasterTextColor> for Color {
     #[inline]
     fn from(color: RasterTextColor) -> Self {

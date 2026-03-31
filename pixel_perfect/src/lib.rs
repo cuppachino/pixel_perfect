@@ -1,8 +1,8 @@
-//! # ![Pixel Perfect](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/pixel_perfect.svg)
+//! # ![Pixel Perfect](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/bevy_track_asset-v0.2.1/assets/brand/logo/pixel_perfect.svg)
 //!
 //! **Pixel Perfect** is a collection of features for making games with a pixel art aesthetic in the
 //! [Bevy game engine](https://bevyengine.org/).
-#![cfg_attr(
+/* #![cfg_attr(
     feature = "bevy",
     doc = r#"
 ## Bevy Integration
@@ -92,7 +92,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {"#
 
 #[cfg(all(
     // We have text rendering features enabled...
-    any(feature = "composite_text", feature = "per_glyph_text"), 
+    any(feature = "composite_text", feature = "per_glyph_text"),
     // ...but no rendering output features are enabled.
     not(any(feature = "bevy_ui", feature = "bevy_2d"))
 ))]
@@ -114,3 +114,4 @@ pub mod prelude {
     #[cfg(feature = "font")]
     pub use crate::{font::prelude::*, text::prelude::*};
 }
+ */

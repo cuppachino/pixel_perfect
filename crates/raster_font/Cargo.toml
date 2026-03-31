@@ -3,6 +3,19 @@ name = "raster_font"
 version = "0.1.0"
 edition = "2024"
 resolver = "2"
+license = "MIT OR Apache-2.0"
+authors = ["Jacob Bergholtz <cuppachino.dev@gmail.com>"]
+description = "Data-driven raster fonts for pixel art games."
+documentation = "https://docs.rs/raster_font"
+repository = "https://github.com/cuppachino/pixel_perfect"
+readme = "README.md"
+keywords = ["font", "raster", "bitmap", "pixel-art", "text-rendering"]
+categories = [
+    "game-development",
+    "text-processing",
+    "graphics",
+    "parser-implementations",
+]
 
 [dependencies]
 # Bevy Backend
