@@ -1,0 +1,60 @@
+[package]
+name = "raster_font"
+version = "0.1.0"
+edition = "2024"
+resolver = "2"
+license = "MIT OR Apache-2.0"
+authors = ["Jacob Bergholtz <cuppachino.dev@gmail.com>"]
+description = "Data-driven raster fonts for pixel art games."
+documentation = "https://docs.rs/raster_font"
+repository = "https://github.com/cuppachino/pixel_perfect"
+readme = "README.md"
+keywords = ["font", "raster", "bitmap", "pixel-art", "text-rendering"]
+categories = [
+    "game-development",
+    "text-processing",
+    "graphics",
+    "parser-implementations",
+]
+
+[dependencies]
+# Bevy Backend
+bevy_app = { workspace = true, optional = true }
+bevy_asset = { workspace = true, optional = true }
+bevy_color = { workspace = true, optional = true }
+bevy_ecs = { workspace = true, optional = true }
+bevy_log = { workspace = true, optional = true }
+bevy_image = { workspace = true, optional = true }
+bevy_platform = { workspace = true, optional = true }
+bevy_reflect = { workspace = true, optional = true }
+# Dependencies
+aho-corasick = "1.1.4"
+bevy_math = { workspace = true, features = ["serialize"] }
+pest = "2.8.6"
+pest_derive = "2.8.6"
+serde = { workspace = true }
+toml = { workspace = true }
+
+[features]
+default = []
+bevy = [
+    "dep:bevy_app",
+    "dep:bevy_asset",
+    "dep:bevy_color",
+    "dep:bevy_ecs",
+    "dep:bevy_image",
+    "dep:bevy_platform",
+    "dep:bevy_reflect",
+    "bevy_math/bevy_reflect",
+]
+font_sequence_map = []
+
+[dev-dependencies]
+bevy = { version = "0.18.1", features = ["file_watcher"] }
+bevy_track_asset = { workspace = true }
+macroquad = { workspace = true }
+thiserror = { workspace = true }
+
+[[example]]
+name = "bevy_asset"
+required-features = ["bevy"]

@@ -1,0 +1,27 @@
+UNION = _{ "|" }
+START = _{ "$(" }
+CLOSE = _{ ")" }
+ESC = _{ "\\" }
+
+RESERVED = { UNION | START | CLOSE }
+
+any_char = !{ ANY }
+sub_char = { (ESC ~ any_char) | (!(RESERVED | ESC) ~ any_char) }
+char = _{ (ESC ~ any_char) | (!START ~ any_char)  }
+
+sub = @{ sub_char+ }
+term = _{ sub }
+
+multi_union = { UNION* ~ term ~ (UNION* ~ term)* ~ UNION* }
+empty_union = _{ UNION* }
+
+_multi_content = _{ multi_union | empty_union }
+_control_token = _{ START ~ _multi_content ~ CLOSE }
+
+// ? parses abc$(xyz|\$(\)|d)foo into [a,b,c, [xyz,$(),d], f,o,o]
+single_token = _{ token ~ EOI }
+tokens = _{ token+ ~ EOI }
+token = _{
+	| _control_token
+    | char
+}

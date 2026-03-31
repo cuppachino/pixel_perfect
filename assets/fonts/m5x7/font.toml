@@ -1,0 +1,113 @@
+name = "m5x7"
+image = "font.png"
+layout = """
+0123456789\
+ABCDEFG   \
+HIJKLMNOP \
+QRSTUVWXYZ\
+abcdefg   \
+hijklmnop \
+qrstuvwxyz\
+!"'#$&(),.\
+?+-*/"""
+
+[pack]
+size = [16, 16]
+region = [[1, 5], [7, 12]]
+offset = [0, 2]
+
+# Extract the first 3 glyphs into a single glyph matching the sequence `$test`.
+[extract."$($test)"]
+ref = "0"
+region = [[0, 0], [47, 7]]
+offset = [0, 2]
+
+#? The south gamepad button icon has not been extracted. Feel free to bind it as an exercise!
+#? It's worth noting you don't have to prefix control sequences with a `$`. This is just one
+#? convention for making sequences kinetically distinct from regular characters.
+#! [extract."$($gamepad_button_south|$gamepad_dpad_south)"]
+
+#? Override glyphs (toml has many ways to express this)
+[override]
+" " = { region = { min = [0, 5], max = [3, 12] } }
+
+[override.","]
+region = { min = [1, 5], max = [4, 13] }
+
+[override."."]
+region = { min = [1, 5], max = [3, 12] }
+
+[override."!"]
+region = { min = [1, 5], max = [3, 12] }
+
+[override."\""]
+region = { min = [1, 5], max = [5, 12] }
+
+[override."'"]
+region = { min = [1, 5], max = [3, 12] }
+
+[override."*"]
+region = { min = [1, 5], max = [4, 12] }
+
+[override."/"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."c"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."f"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."g"]
+region = { min = [1, 5], max = [7, 14] }
+
+[override."i"]
+region = { min = [1, 5], max = [3, 12] }
+
+[override."j"]
+region = { min = [1, 5], max = [5, 14] }
+
+[override."k"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."l"]
+region = { min = [1, 5], max = [4, 12] }
+
+[override."m"]
+region = { min = [1, 5], max = [9, 12] }
+
+[override."o"]
+region = { min = [1, 5], max = [7, 12] }
+
+[override."p"]
+region = { min = [1, 5], max = [7, 14] }
+
+[override."q"]
+region = { min = [1, 5], max = [7, 14] }
+
+[override."r"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."t"]
+region = { min = [1, 5], max = [6, 12] }
+
+[override."w"]
+region = { min = [1, 5], max = [9, 12] }
+
+[override."y"]
+region = { min = [1, 5], max = [7, 14] }
+
+[override."M"]
+region = { min = [1, 5], max = [9, 12] }
+
+[override."W"]
+region = { min = [1, 5], max = [9, 12] }
+
+[override."&"]
+region = { min = [1, 5], max = [8, 12] }
+
+[override."("]
+region = { min = [1, 5], max = [4, 14] }
+
+[override.")"]
+region = { min = [1, 5], max = [4, 14] }
