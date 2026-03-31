@@ -32,7 +32,10 @@
 //! - [`tree`] — runtime glyph matching
 //! - [`builder`] — constructing [`RasterFont`]
 //! - [`backend`] — backend abstraction
-//! - [`bevy_backend`] — Bevy integration *(feature: `bevy`)*
+#![cfg_attr(
+    feature = "bevy",
+    doc = "    - [`bevy_backend`] — Bevy integration *(feature: `bevy`)*"
+)]
 //!
 //! ---
 //!
@@ -83,7 +86,8 @@
 //! ## Resolving text
 //!
 //! A [`RasterFont`] resolves input text into glyphs using the
-//! [`InputResolver`](tree::InputResolver) API.
+//! [`InputResolver`](tree::InputResolver) API. [`valid`] produces an iterator of leftmost-longest
+//! matches, silently skipping unmatched input.
 //!
 //! ```rust
 //! use raster_font::{backend::prelude::*, tree::InputResolver};
@@ -94,9 +98,7 @@
 //! }
 //! ```
 //!
-//! - Matching is **leftmost-longest**
-//! - Unmatched input is skipped
-//! - Resolution is efficient and streamable
+//! See [`valid_stream`] to handle errors or inspect unmatched input.
 //!
 //! ---
 //!
@@ -107,8 +109,6 @@
 //!
 //! A backend defines:
 //!
-//! - atlas type
-//! - image type
 //! - resource representation
 //! - how resources are constructed
 //!
@@ -125,7 +125,7 @@
 //! Resources are stored elsewhere (e.g. asset systems).
 //!
 //! Implement [`FontResourceProvider`] and use [`RasterFont::upgrade`] to obtain
-//! a [`RasterFontCtx`](backend::RasterFontCtx) for resolution.
+//! a [`RasterFontCtx`](backend::RasterFontCtx) for glpyh resolution.
 //!
 //! ---
 //!
@@ -134,6 +134,7 @@
 //! Enable the `bevy` feature to use the built-in Bevy integration.
 //!
 //! ```no_run
+//! # #[cfg(feature = "bevy")]
 //! use bevy::prelude::*;
 //! use raster_font::prelude::*;
 //!
@@ -185,6 +186,8 @@
 //! [`RasterFont::upgrade`]: crate::prelude::RasterFont::upgrade
 //! [`SpriteSheet`]: crate::backend::SpriteSheet
 //! [`FontResourceProvider`]: crate::backend::FontResourceProvider
+//! [`valid`]: crate::tree::InputResolver::valid
+//! [`valid_stream`]: crate::tree::InputResolver::valid_stream
 pub mod backend;
 pub mod builder;
 pub mod layout;
@@ -209,17 +212,12 @@ pub mod collections {
 ///
 /// In other words, this prelude is for the *use-site* of a font, not for backend
 /// authors or low-level integration code.
-///
-/// # What it includes
-///
-/// The prelude re-exports the core types needed to:
-///
-/// - hold a loaded [`RasterFont`],
-/// - resolve input text into glyph matches via [`InputResolver`],
-/// - work with the underlying ligature matcher through [`LigatureTree`].
-///
-/// When the `bevy` feature is enabled, [`bevy_backend::prelude`](backend::bevy_backend::prelude) is
-/// forwarded into this prelude.
+#[cfg_attr(
+    feature = "bevy",
+    doc = "
+When the `bevy` feature is enabled, [`bevy_backend::prelude`](backend::bevy_backend::prelude) is \
+forwarded into this prelude."
+)]
 ///
 /// # When to use this
 ///
@@ -232,6 +230,10 @@ pub mod collections {
 /// If you are implementing a custom backend or working with the lower-level builder
 /// and backend traits, prefer importing from those modules directly instead of this
 /// prelude. See [`backend`], [`core`], and backend-authoring examples in the crate repository.
+///
+/// [`RasterFont`]: crate::backend::RasterFont
+/// [`InputResolver`]: crate::tree::InputResolver
+/// [`LigatureTree`]: crate::tree::LigatureTree
 pub mod prelude {
     pub use crate::tree::{InputResolver, LigatureTree};
 
