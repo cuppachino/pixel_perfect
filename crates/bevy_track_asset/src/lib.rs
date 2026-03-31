@@ -297,6 +297,7 @@ pub struct AssetTrackingPlugin<S: ScheduleLabel + Default = PostUpdate> {
     _schedule: std::marker::PhantomData<S>,
 }
 
+#[cfg(feature = "bevy_app")]
 impl Default for AssetTrackingPlugin<PostUpdate> {
     /// Creates a new `AssetTrackingPlugin` with the default schedule of [`PostUpdate`].
     fn default() -> Self {
@@ -306,6 +307,7 @@ impl Default for AssetTrackingPlugin<PostUpdate> {
     }
 }
 
+#[cfg(feature = "bevy_app")]
 impl<S: ScheduleLabel + Default> AssetTrackingPlugin<S> {
     /// Create a new [`TrackAssetSystems`] configuration plugin for the specified schedule.
     pub const fn new() -> Self {

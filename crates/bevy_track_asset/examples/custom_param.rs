@@ -72,27 +72,36 @@ impl<'w, 's> IntoIterator for UsingImage<'w, 's> {
 }
 
 fn main() -> AppExit {
-    App::new()
-        .add_plugins((
-            // Add default bevy plugins.
-            DefaultPlugins.set(
-                // This makes it easier to read the output of the example.
-                LogPlugin {
-                    level: Level::TRACE,
-                    filter: concat![
-                        "warn",
-                        ",wgpu_hal=error",
-                        ",bevy_winit::system=info",
-                        ",bevy_track_asset=trace",
-                        ",custom_param=trace"
-                    ]
-                    .to_string(),
-                    ..default()
-                },
-            ),
-            AssetTrackingPlugin::<PostUpdate>::default(),
-        ))
-        .add_systems(Startup, load_image)
+    let mut app = App::new();
+
+    app.add_plugins((
+        // Add default bevy plugins.
+        DefaultPlugins.set(
+            // This makes it easier to read the output of the example.
+            LogPlugin {
+                level: Level::TRACE,
+                filter: concat![
+                    "warn",
+                    ",wgpu_hal=error",
+                    ",bevy_winit::system=info",
+                    ",bevy_track_asset=trace",
+                    ",custom_param=trace"
+                ]
+                .to_string(),
+                ..default()
+            },
+        ),
+        #[cfg(feature = "bevy_app")]
+        AssetTrackingPlugin::default(),
+    ));
+
+    #[cfg(not(feature = "bevy_app"))]
+    app.configure_sets(
+        PostUpdate,
+        TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
+    );
+
+    app.add_systems(Startup, load_image)
         .add_systems(Update, greeting_system)
         .add_systems(
             PostUpdate,

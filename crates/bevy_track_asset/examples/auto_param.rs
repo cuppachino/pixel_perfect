@@ -19,7 +19,7 @@ impl AssetDependent<Image> for UseImage {
 fn main() -> AppExit {
     let mut app = App::new();
 
-    app.add_plugins(
+    app.add_plugins((
         // Add default bevy plugins.
         DefaultPlugins.set(
             // This makes it easier to read the output of the example.
@@ -36,24 +36,20 @@ fn main() -> AppExit {
                 ..default()
             },
         ),
-    );
-
-    #[cfg(not(feature = "bevy_app"))]
-    {
-        // If not using the `bevy_app` feature, you should manually configure `TrackAssetSystems`
-        // for the schedule you want to run the asset tracking systems in.
-        app.configure_sets(
-            PostUpdate,
-            TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
-        );
-    }
-    #[cfg(feature = "bevy_app")]
-    {
         // With the `bevy_app` feature enabled, the `AssetTrackingPlugin` configures
         // the `TrackAssetSystems` system set in a schedule of your choice.
         // Default is `PostUpdate`.
-        app.add_plugins(AssetTrackingPlugin::default());
-    }
+        #[cfg(feature = "bevy_app")]
+        AssetTrackingPlugin::default(),
+    ));
+
+    // If not using the `bevy_app` feature, you should manually configure `TrackAssetSystems`
+    // for the schedule you want to run the asset tracking systems in.
+    #[cfg(not(feature = "bevy_app"))]
+    app.configure_sets(
+        PostUpdate,
+        TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
+    );
 
     app.add_systems(Startup, load_image)
         .add_systems(Update, greeting_system)
