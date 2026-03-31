@@ -1,11 +1,11 @@
 [package]
 name = "bevy_track_asset"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 resolver = "2"
 license = "MIT OR Apache-2.0"
 authors = ["Jacob Bergholtz <cuppachino.dev@gmail.com>"]
-description = "A Bevy plugin for tracking assets with Bevy's change detection."
+description = "Propagate asset changes to dependent components and resources in Bevy."
 documentation = "https://docs.rs/bevy_track_asset"
 repository = "https://github.com/cuppachino/pixel_perfect"
 readme = "README.md"

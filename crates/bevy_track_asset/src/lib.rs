@@ -1,22 +1,22 @@
-//! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/crates/bevy_track_asset/assets/brand/logo.svg)
+//! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/bevy_track_asset.svg)
 //!
-//! Utility for tracking asset reloads and propagating changes to dependent ECS data.
+//! Propagate asset changes to dependent components and resources in Bevy.
 //!
 //! When working with [assets](bevy_asset) in Bevy, it's common to cache derived data that depends
 //! on an asset. For example, a resource that holds the output of a compute shader may need to be
 //! re-computed whenever an asset it depends on changes.
 //!
 //! This crate provides a composable system, [`set_changed_on_asset_reload_system`], along with the
-//! [`TrackAsset`], [`AssetDependent`], and [`TriggerChangeDetection`] traits, to automate this pattern: whenever
-//! a tracked asset is modified or finishes loading, all dependent ECS items (components, resources,
-//! etc.) are automatically marked as changed, so that downstream systems can react using Bevy's
-//! standard change detection.
+//! [`TrackAsset`], [`AssetDependent`], and [`TriggerChangeDetection`] traits, to automate this
+//! pattern: whenever a tracked asset is modified or finishes loading, all dependent ECS items
+//! (components, resources, etc.) are automatically marked as changed, so that downstream systems
+//! can react using Bevy's standard change detection.
 //!
 //! # Feature flags
 //!
 //!| Default | Feature       | Description                                                                       |
 //!| :-----: | ------------- | :-------------------------------------------------------------------------------- |
-//!| Yes     | `bevy_app`    | Enables automatic scheduling with `AssetTrackingPlugin` and `TrackAssetPlugin`.   |
+//!| Yes     | `bevy_app`    | Enables automatic configuration of `TrackAssetSystems` via `AssetTrackingPlugin`. |
 //!| Yes     | `bevy_log`    | Logs asset change events and warnings about missing plugins in debug builds.      |
 //!
 //! # Getting Started
@@ -24,8 +24,9 @@
 #![cfg_attr(
     feature = "bevy_app",
     doc = "\
-Add an [`AssetTrackingPlugin`] to your Bevy app to automatically configure `TrackAssetSystems` in \
-a schedule of your choice. Most users will want to handle changes in `PostUpdate`.
+Add an [`AssetTrackingPlugin`] to your Bevy app to configure `TrackAssetSystems` in \
+the desired schedule. Most users will want to handle changes in `PostUpdate` and can just
+use `AssetTrackingPlugin::default()`.
 
 ```no_run
 use bevy::prelude::*;
@@ -35,7 +36,7 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            AssetTrackingPlugin::<PostUpdate>::default(),
+            AssetTrackingPlugin::default(), // AssetTrackingPlugin::<PostUpdate>::new(),
         ));
 }
 ```"
@@ -92,78 +93,39 @@ fn main() {
 //!
 //! # Tracking the asset
 //!
-#![cfg_attr(
-    feature = "bevy_app",
-    doc = "\
-Add a [`TrackAssetPlugin`] for your asset type and a system param that can extract the dependent \
-items (e.g. `Query<&mut ShaderUser>`). This will add a `set_changed_on_asset_reload_system` to \
-your app, which listens for asset events and marks dependent items as changed when their asset is \
-reloaded.
-
-```no_run
-# use bevy::prelude::*;
-# use bevy_track_asset::prelude::*;
-#
-# #[derive(Asset, TypePath)]
-# struct MyShader;
-#
-# #[derive(Component, Resource)]
-# struct ShaderUser {
-#     shader: Handle<MyShader>,
-#     // ...
-# }
-# impl AssetDependent<MyShader> for ShaderUser {
-#     fn asset_id(&self) -> AssetId<MyShader> {
-#         self.shader.id()
-#     }
-# }
-#
-# fn main() {
-# let mut app = App::new();
-app.add_plugins((
-    TrackAssetPlugin::<MyShader, Query<&mut ShaderUser>>::default(),
-    TrackAssetPlugin::<MyShader, TrackResMut<ShaderUser>>::default(),
-));
-# }
-```"
-)]
-#![cfg_attr(
-    not(feature = "bevy_app"),
-    doc = "\
-Then, add [`set_changed_on_asset_reload_system`] to your app, specifying the asset type and a
-system param that provides access to the items you want to track (e.g. `Query<&mut ShaderUser>`).
-
-```no_run
-# use bevy::prelude::*;
-# use bevy_track_asset::prelude::*;
-#
-# #[derive(Asset, TypePath)]
-# struct MyShader;
-# 
-# #[derive(Component, Resource)]
-# struct ShaderUser {
-#     shader: Handle<MyShader>,
-#     // ...
-# }
-#
-# impl AssetDependent<MyShader> for ShaderUser {
-#     fn asset_id(&self) -> AssetId<MyShader> {
-#         self.shader.id()
-#     }
-# }
-#
-# fn main () {
-# let mut app = App::new();
-app.add_systems(PostUpdate,
-    (
-        set_changed_on_asset_reload_system::<MyShader, Query<Mut<ShaderUser>>>,
-        set_changed_on_asset_reload_system::<MyShader, TrackResMut<ShaderUser>>,
-    )
-        .in_set(TrackAssetSystems::Watcher)
-   );
-# }
-```"
-)]
+//! Add [`set_changed_on_asset_reload_system`] to your app, specifying the asset type and a
+//! system param that provides access to the items you want to track (e.g. `Query<&mut ShaderUser>`).
+//! The system is automatically added to the [`Watcher`](TrackAssetSystems::Watcher) system set, but may be further configured.
+//!
+//! ```no_run
+//! # use bevy::prelude::*;
+//! # use bevy_track_asset::prelude::*;
+//! #
+//! # #[derive(Asset, TypePath)]
+//! # struct MyShader;
+//! #
+//! # #[derive(Component, Resource)]
+//! # struct ShaderUser {
+//! #     shader: Handle<MyShader>,
+//! #     // ...
+//! # }
+//! #
+//! # impl AssetDependent<MyShader> for ShaderUser {
+//! #     fn asset_id(&self) -> AssetId<MyShader> {
+//! #         self.shader.id()
+//! #     }
+//! # }
+//! #
+//! # fn main () {
+//! # let mut app = App::new();
+//! app.add_systems(PostUpdate,
+//!     (
+//!         set_changed_on_asset_reload_system::<MyShader, Query<Mut<ShaderUser>>>(),
+//!         set_changed_on_asset_reload_system::<MyShader, TrackResMut<ShaderUser>>(),
+//!     )
+//! );
+//! # }
+//! ```
 //!
 //! # Reacting to changes
 //!
@@ -312,37 +274,47 @@ use bevy_asset::prelude::*;
 use bevy_ecs::schedule::ScheduleLabel;
 use bevy_ecs::{
     prelude::*,
+    schedule::ScheduleConfigs,
     system::{StaticSystemParam, SystemParam, SystemParamItem},
 };
 #[cfg(feature = "bevy_log")]
 use bevy_log::info;
-#[cfg(all(feature = "bevy_log", feature = "bevy_app"))]
-use bevy_log::warn;
 use bevy_platform::collections::HashSet;
 
 pub mod prelude {
-    #[cfg(not(feature = "bevy_app"))]
-    pub use crate::set_changed_on_asset_reload_system;
+    #[cfg(feature = "bevy_app")]
+    pub use crate::AssetTrackingPlugin;
+
     pub use crate::{
         AssetDependent, TrackAsset, TrackAssetSystems, TrackResMut, TriggerChangeDetection,
+        set_changed_on_asset_reload_system,
     };
-    #[cfg(feature = "bevy_app")]
-    pub use crate::{AssetTrackingPlugin, TrackAssetPlugin};
 }
 
-/// Atomic that tracks if *any* [`AssetTrackingPlugin`]s have been added, to conditionally warn
-/// about missing plugins in `TrackAssetPlugin::finish()`.
-#[cfg(all(debug_assertions, feature = "bevy_app", feature = "bevy_log"))]
-static IS_ASSET_TRACKING_PLUGIN_ADDED: std::sync::atomic::AtomicBool =
-    std::sync::atomic::AtomicBool::new(false);
-
 /// Plugin that configures [`TrackAssetSystems`] in a schedule of your choice.
-///
-/// Most users will want to configure this in `PostUpdate` to be compatible with [`TrackAssetPlugin`].
 #[cfg(feature = "bevy_app")]
-#[derive(Default)]
 pub struct AssetTrackingPlugin<S: ScheduleLabel + Default = PostUpdate> {
     _schedule: std::marker::PhantomData<S>,
+}
+
+#[cfg(feature = "bevy_app")]
+impl Default for AssetTrackingPlugin<PostUpdate> {
+    /// Creates a new `AssetTrackingPlugin` with the default schedule of [`PostUpdate`].
+    fn default() -> Self {
+        Self {
+            _schedule: std::marker::PhantomData,
+        }
+    }
+}
+
+#[cfg(feature = "bevy_app")]
+impl<S: ScheduleLabel + Default> AssetTrackingPlugin<S> {
+    /// Create a new [`TrackAssetSystems`] configuration plugin for the specified schedule.
+    pub const fn new() -> Self {
+        Self {
+            _schedule: std::marker::PhantomData,
+        }
+    }
 }
 
 #[cfg(feature = "bevy_app")]
@@ -352,9 +324,6 @@ impl<S: ScheduleLabel + Default> Plugin for AssetTrackingPlugin<S> {
             S::default(),
             TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
         );
-
-        #[cfg(all(debug_assertions, feature = "bevy_log"))]
-        IS_ASSET_TRACKING_PLUGIN_ADDED.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 }
 
@@ -433,18 +402,8 @@ impl<T: SystemParam + Send + Sync + 'static, A: Asset> TrackAsset<A> for T where
 /// ## Why?
 ///
 /// Rust's future-proof orphan rules prevent us from implementing `TrackAsset` directly for
-#[cfg_attr(
-    not(feature = "bevy_app"),
-    doc = "\r\
-`ResMut<T>`, but you can use this wrapper type with [`set_changed_on_asset_reload_system`] to \
-track asset dependencies in resources."
-)]
-#[cfg_attr(
-    feature = "bevy_app",
-    doc = "\r\
-`ResMut<T>`, but you can use this wrapper type with [`TrackAssetPlugin`] to track \
-asset dependencies in resources."
-)]
+/// `ResMut<T>`, but you can use this wrapper type with [`set_changed_on_asset_reload_system`] to
+/// track asset dependencies in resources.
 #[derive(SystemParam)]
 pub struct TrackResMut<'w, T: Resource> {
     /// The wrapped `ResMut<T>` that provides access to the resource you want to track.
@@ -530,83 +489,17 @@ impl<A: Asset, T: Resource + AssetDependent<A>> AssetDependent<A> for ResMut<'_,
     }
 }
 
-/// Convenience plugin for tracking asset changes in the [`TrackAssetSystems::Watcher`] system set
-/// during [`PostUpdate`].
-///
-/// Alternatively, you can add `set_changed_on_asset_reload_system` directly. This plugin simply
-/// guarantees that a watcher system is added before [`TrackAssetSystems::Reload`], but you can
-/// configure this manually if you prefer.
-///
-/// See [`set_changed_on_asset_reload_system`] for how tracking works
-#[cfg(feature = "bevy_app")]
-pub struct TrackAssetPlugin<A: Asset, T: TrackAsset<A>>
-where
-    for<'w, 's> SystemParamItem<'w, 's, T>:
-        IntoIterator<Item: AssetDependent<A> + TriggerChangeDetection>,
-{
-    _asset: std::marker::PhantomData<A>,
-    _param: std::marker::PhantomData<T>,
-}
-
-#[cfg(feature = "bevy_app")]
-impl<A: Asset, T: TrackAsset<A>> Default for TrackAssetPlugin<A, T>
-where
-    for<'w, 's> SystemParamItem<'w, 's, T>:
-        IntoIterator<Item: AssetDependent<A> + TriggerChangeDetection>,
-{
-    fn default() -> Self {
-        Self {
-            _asset: std::marker::PhantomData,
-            _param: std::marker::PhantomData,
-        }
-    }
-}
-
-#[cfg(feature = "bevy_app")]
-impl<A: Asset, T: TrackAsset<A>> Plugin for TrackAssetPlugin<A, T>
-where
-    for<'w, 's> SystemParamItem<'w, 's, T>:
-        IntoIterator<Item: AssetDependent<A> + TriggerChangeDetection>,
-{
-    fn build(&self, app: &mut App) {
-        app.add_systems(
-            PostUpdate,
-            set_changed_on_asset_reload_system::<A, T>.in_set(TrackAssetSystems::Watcher),
-        );
-    }
-
-    /// Warn if the [`AssetTrackingPlugin`] was not added.
-    #[cfg(all(debug_assertions, feature = "bevy_log"))]
-    fn finish(&self, _app: &mut App) {
-        if !IS_ASSET_TRACKING_PLUGIN_ADDED.swap(true, std::sync::atomic::Ordering::Relaxed) {
-            warn!(
-                "No AssetTrackingPlugin detected. Expect random system order and missed asset events"
-            );
-        }
-    }
-}
-
 /// A system that marks ECS items as changed when the asset they depend on is modified or reloaded.
 ///
-/// Add this system to your app to automatically propagate asset reload events to dependent
-/// components or resources, enabling Bevy's standard change detection to pick them up.
-#[cfg_attr(
-    feature = "bevy_app",
-    doc = "
-# Scheduling
-
-Prefer using [`TrackAssetPlugin`] instead of adding this system manually. This guarantees that the \
-system is added in [`TrackAssetSystems::Watcher`] and makes it easier to schedule other systems \
-after it by scheduling them in `TrackAssetSystems::Reload`."
-)]
-#[cfg_attr(
-    not(feature = "bevy_app"),
-    doc = "
-# Scheduling
-
-The system should be added to the [`TrackAssetSystems::Watcher`] system set to ensure it is scheduled
-before any systems that react to asset reloads, which should be in [`TrackAssetSystems::Reload`]."
-)]
+/// Add this system to your app to propagate asset changes to dependent components or resources,
+/// and use Bevy's standard change detection to pick them up. This system is automatically added
+/// to the `TrackAssetSystems::Watcher`, but you can configure it further.
+///
+/// # Scheduling
+///
+/// The system is automatically added to the [`TrackAssetSystems::Watcher`] system set to ensure it
+/// is scheduled before any systems that react to asset reloads, which can be added to
+/// [`TrackAssetSystems::Reload`] or any other set that runs after `Watcher`.
 ///
 /// # Description
 ///
@@ -626,6 +519,10 @@ before any systems that react to asset reloads, which should be in [`TrackAssetS
 ///
 /// # Example
 ///
+/// Add `set_changed_on_asset_reload_system` to your app, specifying the asset type and a
+/// system param that provides access to the items you want to track (e.g. `Query<&mut MyComponent>`).
+/// The system is preconfigured to run in the `TrackAssetSystems::Watcher` set.
+///
 /// ```
 /// use bevy::prelude::*;
 /// use bevy_track_asset::{AssetDependent, set_changed_on_asset_reload_system, TrackAssetSystems};
@@ -643,8 +540,7 @@ before any systems that react to asset reloads, which should be in [`TrackAssetS
 ///     let mut app = App::new();
 ///     // ...other plugins and systems...
 ///     app.add_systems(PostUpdate,
-///         set_changed_on_asset_reload_system::<MyAsset, Query<&mut MyComponent>>
-///             .in_set(TrackAssetSystems::Watcher)
+///         set_changed_on_asset_reload_system::<MyAsset, Query<&mut MyComponent>>()
 ///     );
 /// }
 /// ```
@@ -657,12 +553,23 @@ before any systems that react to asset reloads, which should be in [`TrackAssetS
 ///   See [`extract_asset_id`] for the filtering logic.
 /// - With the `bevy_log` feature enabled, a log message is emitted at `info` level each time an
 ///   asset reload is detected.
-pub fn set_changed_on_asset_reload_system<A: Asset, S: TrackAsset<A>>(
+#[inline]
+pub fn set_changed_on_asset_reload_system<'a, A: Asset, Param: TrackAsset<A>>()
+-> ScheduleConfigs<Box<dyn System<In = (), Out = ()> + 'a>>
+where
+    for<'w, 's> SystemParamItem<'w, 's, Param>:
+        IntoIterator<Item: AssetDependent<A> + TriggerChangeDetection>,
+{
+    _set_changed_on_asset_reload_system::<A, Param>.in_set(TrackAssetSystems::Watcher)
+}
+
+#[doc(hidden)]
+fn _set_changed_on_asset_reload_system<A: Asset, Param: TrackAsset<A>>(
     mut messages: MessageReader<AssetEvent<A>>,
     mut cache: Local<HashSet<AssetId<A>>>,
-    param: StaticSystemParam<S>,
+    param: StaticSystemParam<Param>,
 ) where
-    for<'w, 's> SystemParamItem<'w, 's, S>:
+    for<'w, 's> SystemParamItem<'w, 's, Param>:
         IntoIterator<Item: AssetDependent<A> + TriggerChangeDetection>,
 {
     for id in messages.read().filter_map(extract_asset_id) {
@@ -674,9 +581,8 @@ pub fn set_changed_on_asset_reload_system<A: Asset, S: TrackAsset<A>>(
         if cache.contains(&id) {
             #[cfg(feature = "bevy_log")]
             info!(
-                "{} {id} reloaded. Marking dependent {} as changed",
-                std::any::type_name::<A>(),
-                std::any::type_name::<S>()
+                "{id} changed. Marking dependent {} as changed",
+                std::any::type_name::<Param>()
             );
 
             item.trigger_change();

@@ -52,64 +52,75 @@ struct UsingImage<'w, 's> {
 impl<'w, 's> IntoIterator for UsingImage<'w, 's> {
     type Item = ImageDependency<'w>;
     type IntoIter = std::iter::Chain<
+        std::iter::Once<ImageDependency<'w>>,
         std::iter::Map<
             QueryIter<'w, 's, &'static mut UseImage, ()>,
             fn(Mut<'w, UseImage>) -> ImageDependency<'w>,
         >,
-        std::iter::Once<ImageDependency<'w>>,
     >;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        self.query_uses_image
-            .into_iter()
-            .map(
+        // Yield the resource first, then the query items. The order doesn't matter, but it could.
+        std::iter::once(ImageDependency::GlobalUseImage(self.global_use_image)).chain(
+            self.query_uses_image.into_iter().map(
                 ImageDependency::QueryUsesImage
                     as fn(bevy::prelude::Mut<'w, UseImage>) -> ImageDependency<'w>,
-            )
-            .chain(std::iter::once(ImageDependency::GlobalUseImage(
-                self.global_use_image,
-            )))
+            ),
+        )
     }
 }
 
 fn main() -> AppExit {
-    App::new()
-        .add_plugins((
-            // Add default bevy plugins.
-            DefaultPlugins.set(
-                // This makes it easier to read the output of the example.
-                LogPlugin {
-                    level: Level::TRACE,
-                    filter: concat![
-                        "warn",
-                        ",wgpu_hal=error",
-                        ",bevy_winit::system=info",
-                        ",bevy_track_asset=trace",
-                        ",custom_param=trace"
-                    ]
-                    .to_string(),
-                    ..default()
-                },
-            ),
-            AssetTrackingPlugin::<PostUpdate>::default(),
-            TrackAssetPlugin::<Image, UsingImage>::default(),
-        ))
-        .add_systems(Startup, load_image)
+    let mut app = App::new();
+
+    app.add_plugins((
+        // Add default bevy plugins.
+        DefaultPlugins.set(
+            // This makes it easier to read the output of the example.
+            LogPlugin {
+                level: Level::TRACE,
+                filter: concat![
+                    "warn",
+                    ",wgpu_hal=error",
+                    ",bevy_winit::system=info",
+                    ",bevy_track_asset=trace",
+                    ",custom_param=trace"
+                ]
+                .to_string(),
+                ..default()
+            },
+        ),
+        #[cfg(feature = "bevy_app")]
+        AssetTrackingPlugin::default(),
+    ));
+
+    #[cfg(not(feature = "bevy_app"))]
+    app.configure_sets(
+        PostUpdate,
+        TrackAssetSystems::Watcher.before(TrackAssetSystems::Reload),
+    );
+
+    app.add_systems(Startup, load_image)
         .add_systems(Update, greeting_system)
         .add_systems(
             PostUpdate,
-            handle_changed_image_system.in_set(TrackAssetSystems::Reload),
+            (
+                set_changed_on_asset_reload_system::<Image, UsingImage>(),
+                handle_changed_image_system.in_set(TrackAssetSystems::Reload),
+            ),
         )
         .run()
 }
 
 /// Loads an image asset and creates 2 dependents of it.
 fn load_image(mut commands: Commands, asset_server: ResMut<AssetServer>) {
-    let image: Handle<Image> =
-        asset_server.load_with_settings("brand/logo.png", |s: &mut ImageLoaderSettings| {
+    let image: Handle<Image> = asset_server.load_with_settings(
+        "brand/logo/bevy_track_asset.png",
+        |s: &mut ImageLoaderSettings| {
             s.sampler = ImageSampler::nearest();
-        });
+        },
+    );
 
     info!("Begin load: {image:?}");
 
