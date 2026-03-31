@@ -70,9 +70,9 @@ enum Error {
     #[error("{0}")]
     FontBuilderError(#[from] FontBuilderError<<BuildMacroquadFont as BackendBuilder>::Error>),
     #[error("{0}")]
-    MacroquadError(#[from] macroquad::Error),
+    Macroquad(#[from] macroquad::Error),
     #[error("TOML deserialization error: {0}")]
-    TomlError(#[from] toml::de::Error),
+    Toml(#[from] toml::de::Error),
 }
 
 #[macroquad::main("Raster Font Example")]
