@@ -1,6 +1,6 @@
 [workspace]
-default-members = ["crates/bevy_track_asset"]
-members = ["crates/bevy_track_asset"]
+default-members = ["pixel_perfect"]
+members = ["pixel_perfect", "crates/*"]
 resolver = "2"
 
 [workspace.package]
@@ -24,10 +24,27 @@ lto = "thin"
 
 [workspace.dependencies]
 # Packages
+font = { package = "raster_font", path = "crates/raster_font" }
 bevy_track_asset = { path = "crates/bevy_track_asset" }
+# General Dependencies
+serde = { version = "1.0.228", features = ["derive"] }
+toml = { version = "1.1.0" }
 # Bevy Core
 bevy_app = { version = "0.18.1" }
+bevy_color = { version = "0.18.1" }
 bevy_ecs = { version = "0.18.1" }
 bevy_asset = { version = "0.18.1" }
+bevy_derive = { version = "0.18.1" }
 bevy_log = { version = "0.18.1" }
+bevy_math = { version = "0.18.1", default-features = false, features = ["std"] }
 bevy_platform = { version = "0.18.1" }
+bevy_reflect = { version = "0.18.1" }
+# Bevy UI
+bevy_ui = { version = "0.18.1" }
+# Bevy 2D
+bevy_sprite = { version = "0.18.1" }
+# Bevy Images
+bevy_image = { version = "0.18.1" }
+bevy_render = { version = "0.18.1" }
+# Bevy Optional
+atomicow = { version = "1.1.0" }
