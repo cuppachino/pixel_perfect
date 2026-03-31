@@ -47,6 +47,7 @@
 //!
 //! [`FontAtlasBuilder`]: crate::builder::FontAtlasBuilder
 //! [`InputResolver`]: crate::tree::InputResolver
+//! [`UTokenProps`]: crate::builder::UTokenProps
 
 #[cfg(feature = "bevy")]
 use bevy_reflect::prelude::*;
@@ -54,7 +55,7 @@ use bevy_reflect::prelude::*;
 use std::{error::Error, fmt::Debug, marker::PhantomData};
 
 use crate::{
-    builder::{RawFont, UTokenProps},
+    builder::RawFont,
     collections::HashMap,
     core::{AtlasIndex, Sequence},
     tree::{BuildError as LigatureBindingError, LigatureTree, MapLigature},
@@ -120,6 +121,8 @@ pub trait BackendBuilder {
     /// Returns `Err(Self::Error)` if backend-specific resource creation fails. The error surfaces as
     /// [`FontBuilderError::BackendBuilderError`](crate::builder::errors::FontBuilderError::BackendBuilderError)
     /// in the public API of `FontAtlasBuilder::build`.
+    ///
+    /// [`UTokenProps`]: crate::builder::UTokenProps
     fn build_resources(
         self,
         raw_font: RawFont<Self::Sheet>,
@@ -128,9 +131,18 @@ pub trait BackendBuilder {
 
 /// Provides glyph pixel data (region + render offset) for an [`AtlasIndex`].
 pub trait SpriteSheet {
-    /// Returns `None` if the index falls outside the bounds of the atlas (e.g. the font was built
-    /// with a different resource set than the one being queried).
-    fn props(&self, index: &AtlasIndex) -> Option<UTokenProps>;
+    /// Commonly [`UTokenProps`] (UV rect + draw offset).
+    ///
+    /// [`UTokenProps`]: crate::builder::UTokenProps
+    type Props;
+
+    /// Resolves an [`AtlasIndex`] to its [`SpriteSheet::Props`]. Common implementations typically
+    /// return [`UTokenProps`] (UV rect + draw offset).
+    ///
+    /// Returns `None` if the index is out of bounds.
+    ///
+    /// [`UTokenProps`]: crate::builder::UTokenProps
+    fn props(&self, index: &AtlasIndex) -> Self::Props;
 }
 
 /// Borrows backend-specific render resources for a [`RasterFont`] from an external context.
@@ -271,7 +283,7 @@ impl<B: Backend> AsRef<LigatureTree<AtlasIndex>> for RasterFont<B> {
 ///
 /// [`InputResolver`]: crate::tree::InputResolver
 impl<B: Backend<Resources: SpriteSheet>> MapLigature<AtlasIndex> for RasterFont<B> {
-    type Output = Option<UTokenProps>;
+    type Output = <B::Resources as SpriteSheet>::Props;
 
     fn map_ligature(&self, index: &AtlasIndex) -> Self::Output {
         self.resources.props(index)
@@ -399,7 +411,7 @@ impl<'f, 'r, Ctx: FontResourceProvider> AsRef<LigatureTree<AtlasIndex>>
 }
 
 impl<'f, 'r, Ctx: FontResourceProvider> MapLigature<AtlasIndex> for RasterFontCtx<'f, 'r, Ctx> {
-    type Output = Option<UTokenProps>;
+    type Output = <<Ctx as FontResourceProvider>::Output<'f, 'r> as SpriteSheet>::Props;
 
     fn map_ligature(&self, index: &AtlasIndex) -> Self::Output {
         self.resources.props(index)

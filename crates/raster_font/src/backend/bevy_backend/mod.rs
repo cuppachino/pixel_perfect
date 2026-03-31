@@ -69,7 +69,7 @@ pub mod loader;
 
 pub mod prelude {
     pub use super::{
-        BevyBackend, FontSampler,
+        BevyBackend, BorrowedGlyph, FontSampler,
         loader::{RasterFontAssetLoaderPlugin, RasterFontLoaderSettings},
     };
     pub use crate::tree::InputResolver;
@@ -77,7 +77,7 @@ pub mod prelude {
     pub type RasterFont = crate::backend::RasterFont<BevyBackend>;
 }
 
-use std::{error::Error, marker::PhantomData};
+use std::error::Error;
 
 use bevy_asset::{LoadContext, VisitAssetDependencies, prelude::*};
 use bevy_ecs::{component::Component, resource::Resource};
@@ -85,7 +85,10 @@ use bevy_image::{Image, ImageSampler, TextureAtlasLayout};
 use bevy_reflect::{Reflect, TypePath};
 use serde::{Deserialize, Serialize};
 
-use crate::backend::{bevy_backend::loader::RasterFontLoaderSettings, prelude::*};
+use crate::{
+    backend::{bevy_backend::loader::RasterFontLoaderSettings, prelude::*},
+    core::UGlyphRegion,
+};
 
 /// Zero-sized tag struct that identifies the Bevy rendering backend.
 ///
@@ -146,30 +149,9 @@ pub struct BuildBevyFont<'a, 'b> {
     pub settings: &'a RasterFontLoaderSettings,
 }
 
-/// Infallible error type for [`BuildBevyFont`].
-///
-/// [`labeled_asset_scope`](LoadContext::labeled_asset_scope) is documented as
-/// returning an error only when the provided closure panics, which cannot happen
-/// here. This type is therefore effectively unreachable in practice, but is
-/// required to satisfy the [`BackendBuilder::Error`] associated type.
-#[derive(Debug)]
-#[doc(hidden)]
-pub struct LabeledAssetScopeError {
-    _sealed: PhantomData<()>,
-}
-impl Error for LabeledAssetScopeError {}
-impl std::fmt::Display for LabeledAssetScopeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Failed to create a labeled asset scope for a raster font's texture atlas layout. This is an internal error that should not occur under normal circumstances. Please report this to the maintainers."
-        )
-    }
-}
-
 impl BackendBuilder for BuildBevyFont<'_, '_> {
     type Backend = BevyBackend;
-    type Error = LabeledAssetScopeError;
+    type Error = std::convert::Infallible;
     /// The glyph sheet is already loaded as a Bevy asset before the font builder
     /// runs, so the raw image is passed in as a [`Handle<Image>`] rather than
     /// raw pixel data.
@@ -227,19 +209,24 @@ pub struct BevyAtlas<'f, 'r> {
     offsets: &'f [IGlyphOffset],
 }
 
-impl SpriteSheet for BevyAtlas<'_, '_> {
+#[derive(Clone, Copy, Debug)]
+pub struct BorrowedGlyph<'r, 'o> {
+    pub region: &'r UGlyphRegion,
+    pub offset: &'o IGlyphOffset,
+}
+
+impl<'f, 'r> SpriteSheet for BevyAtlas<'f, 'r> {
+    type Props = Option<BorrowedGlyph<'r, 'f>>;
+
     /// Resolves an [`AtlasIndex`] to its [`UTokenProps`] (UV rect + draw offset).
     ///
     /// Returns `None` if the index is out of bounds for either the regions or
     /// offsets slices, which would indicate a mismatch between the font that
     /// produced the index and the resources currently loaded.
-    fn props(&self, index: &AtlasIndex) -> Option<UTokenProps> {
+    fn props(&self, index: &AtlasIndex) -> Self::Props {
         let region = self.regions.textures.get(index.0)?;
         let offset = self.offsets.get(index.0)?;
-        Some(UTokenProps {
-            region: *region,
-            offset: *offset,
-        })
+        Some(BorrowedGlyph { region, offset })
     }
 }
 

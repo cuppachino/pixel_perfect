@@ -9,8 +9,7 @@ use bevy_reflect::prelude::*;
 
 use crate::{
     backend::bevy_backend::{
-        BuildBevyFont, LabeledAssetScopeError, loader::error::RasterFontAssetLoaderError,
-        prelude::RasterFont,
+        BuildBevyFont, loader::error::RasterFontAssetLoaderError, prelude::RasterFont,
     },
     builder::{FontAtlasBuilder, GlyphSheet, errors::FontBuilderError},
     meta::FontMeta,
@@ -206,7 +205,7 @@ pub mod error {
         LoadDirectError(bevy_asset::LoadDirectError),
         /// Errors produced by the raster font builder, including errors from constructing
         /// backend-specific resources.
-        FontBuilderError(FontBuilderError<LabeledAssetScopeError>),
+        FontBuilderError(FontBuilderError<std::convert::Infallible>),
     }
 
     impl Error for RasterFontAssetLoaderError {}
@@ -241,7 +240,7 @@ pub mod error {
             RasterFontAssetLoaderError::LoadDirectError(err)
         }
     }
-    impl<E: Into<FontBuilderError<LabeledAssetScopeError>>> From<E> for RasterFontAssetLoaderError {
+    impl<E: Into<FontBuilderError<std::convert::Infallible>>> From<E> for RasterFontAssetLoaderError {
         fn from(err: E) -> Self {
             RasterFontAssetLoaderError::FontBuilderError(err.into())
         }

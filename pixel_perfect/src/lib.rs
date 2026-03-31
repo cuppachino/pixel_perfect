@@ -88,7 +88,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {"#
 )]
 //!
 //! [`Sequence`]: crate::font::core::Sequence
-//! [`Glyph`]: crate::font::core::Glyph
 
 #[cfg(all(
     // We have text rendering features enabled...

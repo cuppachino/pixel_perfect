@@ -151,7 +151,7 @@ fn print_changed_glyphs_system(
             .valid(text.as_bytes())
             .map(Option::unwrap)
         {
-            info!("  Glyph: {glyph:?}");
+            info!("  {glyph:?}");
         }
     }
 }

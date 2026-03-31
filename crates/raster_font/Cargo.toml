@@ -36,7 +36,7 @@ serde = { workspace = true }
 toml = { workspace = true }
 
 [features]
-default = ["bevy", "font_sequence_map"] # TODO: remove default
+default = []
 bevy = [
     "dep:bevy_app",
     "dep:bevy_asset",
@@ -52,3 +52,9 @@ font_sequence_map = []
 [dev-dependencies]
 bevy = { version = "0.18.1", features = ["file_watcher"] }
 bevy_track_asset = { workspace = true }
+macroquad = { workspace = true }
+thiserror = { workspace = true }
+
+[[example]]
+name = "bevy_asset"
+required-features = ["bevy"]

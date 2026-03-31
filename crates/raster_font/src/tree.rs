@@ -1,9 +1,8 @@
 //! Efficient multi-character sequence resolution via Aho-Corasick matching.
 //!
 //! [`LigatureTree`] wraps an [Aho-Corasick] automaton to resolve multi-character
-//! sequences to their associated values (typically [`Glyph`]s) in a single left-to-right
-//! pass over an input string. The name "tree" reflects its role in the font pipeline
-//! rather than its internal structure.
+//! sequences to their associated values in a single left-to-right pass over an input string.
+//! The name "tree" reflects its role in the font pipeline rather than its internal structure.
 //!
 //! # Match Semantics
 //!
@@ -30,7 +29,6 @@
 //! For single-match lookup rather than full iteration, see [`LigatureTree::find`].
 //!
 //! [Aho-Corasick]: https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm
-//! [`Glyph`]: crate::core::Glyph
 //! [`RasterFont`]: crate::prelude::RasterFont
 
 use aho_corasick::{AhoCorasick, FindIter, Input, Match, MatchKind, StreamFindIter};

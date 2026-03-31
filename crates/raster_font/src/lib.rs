@@ -200,6 +200,36 @@ pub mod collections {
     pub use std::collections::{HashMap, HashSet, hash_map, hash_set};
 }
 
+/// Common imports for using Raster Font.
+///
+/// This module is intended for **font consumers**: code that loads fonts, resolves
+/// input into glyphs, and renders or otherwise uses the resulting data.
+///
+/// In other words, this prelude is for the *use-site* of a font, not for backend
+/// authors or low-level integration code.
+///
+/// # What it includes
+///
+/// The prelude re-exports the core types needed to:
+///
+/// - hold a loaded [`RasterFont`],
+/// - resolve input text into glyph matches via [`InputResolver`],
+/// - work with the underlying ligature matcher through [`LigatureTree`].
+///
+/// When the `bevy` feature is enabled, [`bevy_backend::prelude`](backend::bevy_backend::prelude) is
+/// forwarded into this prelude.
+///
+/// # When to use this
+///
+/// Import this when writing gameplay, UI, tools, or examples that *consume* a font:
+///
+/// ```rust,no_run
+/// use raster_font::prelude::*;
+/// ```
+///
+/// If you are implementing a custom backend or working with the lower-level builder
+/// and backend traits, prefer importing from those modules directly instead of this
+/// prelude. See [`backend`], [`core`], and backend-authoring examples in the crate repository.
 pub mod prelude {
     pub use crate::tree::{InputResolver, LigatureTree};
 
@@ -214,11 +244,13 @@ pub mod core {
     use bevy_math::{IRect, IVec2, URect, UVec2};
     #[cfg(feature = "bevy")]
     use bevy_reflect::prelude::*;
-    use std::fmt::Debug;
+    use std::{fmt::Debug, ops::Deref};
 
     pub use crate::{
         layout::OrdTokenLayout,
+        meta::FontMeta,
         token::{Sequence, Token, Unique},
+        tree::InputResolver,
     };
 
     /// Unsigned integer representation of a glyph's size.
@@ -244,23 +276,16 @@ pub mod core {
     #[repr(transparent)]
     pub struct AtlasIndex(pub(crate) usize);
 
-    /// Resolved metadata for a single glyph in a [`RasterFont`].
-    ///
-    /// Pairs an atlas position with an optional pixel offset, allowing fine-grained
-    /// per-glyph alignment without altering the source texture.
-    ///
-    /// [`RasterFont`]: crate::prelude::RasterFont
-    #[derive(Clone, Debug, Default, PartialEq, Eq)]
-    #[cfg_attr(
-        feature = "bevy",
-        derive(Reflect),
-        reflect(Clone, Debug, Default, PartialEq)
-    )]
-    pub struct Glyph {
-        /// The index of this glyph's region in the texture atlas.
-        pub index: AtlasIndex,
-        /// Pixel offset applied at render time. Use this to nudge glyphs that don't
-        /// sit naturally on the baseline or within their tile.
-        pub offset: IGlyphOffset,
+    impl Deref for AtlasIndex {
+        type Target = usize;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+    impl AsRef<usize> for AtlasIndex {
+        fn as_ref(&self) -> &usize {
+            &self.0
+        }
     }
 }
