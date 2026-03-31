@@ -1,6 +1,6 @@
 //! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/bevy_track_asset.svg)
 //!
-//! Utility for tracking asset reloads and propagating changes to dependent ECS data.
+//! Propagate asset changes to dependent components and resources in Bevy.
 //!
 //! When working with [assets](bevy_asset) in Bevy, it's common to cache derived data that depends
 //! on an asset. For example, a resource that holds the output of a compute shader may need to be

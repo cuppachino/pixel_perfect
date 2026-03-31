@@ -5,10 +5,7 @@
 [![docs.rs](https://img.shields.io/docsrs/bevy_track_asset?label=docs.rs)](https://docs.rs/bevy_track_asset)
 ![Deps.rs Crate Dependencies (specific version)](https://img.shields.io/deps-rs/bevy/0.18.1?logo=bevy&label=Bevy&link=https%3A%2F%2Fdocs.rs%2Fbevy%2F0.18.1%2Fbevy%2F)
 
-Utility for propagating asset reloads to dependent ECS data.
-
-When an asset is modified or finishes loading, all components/resources that depend on it are
-automatically marked as changed so systems can react using standard Bevy change detection.
+Propagate asset changes to dependent components and resources in Bevy.
 
 ## Install
 
