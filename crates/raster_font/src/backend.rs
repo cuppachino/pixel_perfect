@@ -235,6 +235,10 @@ pub struct RasterFont<B: Backend> {
     /// Backend-specific resources needed to render this font.
     pub resources: B::Resources,
     /// The line height for this font, derived from the tallest glyph in the atlas.
+    #[allow(
+        dead_code,
+        reason = "conditional compilation makes this appear unused in some contexts"
+    )]
     pub(crate) height: u32,
     /// Aho-Corasick automaton for resolving ligatures and multi-character sequences
     /// to their corresponding glyphs. This is the primary resolution path.
