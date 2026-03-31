@@ -1,4 +1,4 @@
-# ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/crates/bevy_track_asset/assets/brand/logo.svg)
+# ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/bevy_track_asset-v0.2.1/assets/brand/logo/bevy_track_asset.svg)
 
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](https://github.com/cuppachino/pixel_perfect#license)
 [![CI](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cuppachino/pixel_perfect/actions/workflows/ci.yml)
@@ -20,7 +20,7 @@ Configure the `TrackAssetSystems` system set in your app:
 
 ```rust
 use bevy::prelude::*;
-use bevy_track_asset::prelude::*;
+use bevy_track_asset::prelude::{*, set_changed_on_asset_reload_system as track_asset};
 
 fn main() {
     App::new()
@@ -44,9 +44,7 @@ impl AssetDependent<MyAsset> for MyComponent {
 Then register tracking:
 
 ```rust
-app.add_plugins(
-    TrackAssetPlugin::<MyAsset, Query<&mut MyComponent>>::default()
-);
+app.add_systems(PostUpdate, track_asset::<MyAsset, Query<&mut MyComponent>>());
 ```
 
 React using normal change detection:

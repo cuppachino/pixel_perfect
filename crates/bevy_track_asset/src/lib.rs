@@ -1,4 +1,4 @@
-//! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/bevy_track_asset.svg)
+//! # ![Bevy Track Asset](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/tags/bevy_track_asset-v0.2.1/assets/brand/logo/bevy_track_asset.svg)
 //!
 //! Propagate asset changes to dependent components and resources in Bevy.
 //!
