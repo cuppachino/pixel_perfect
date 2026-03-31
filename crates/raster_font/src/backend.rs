@@ -60,6 +60,9 @@ use crate::{
     tree::{BuildError as LigatureBindingError, LigatureTree, MapLigature},
 };
 
+#[cfg(feature = "bevy")]
+pub mod bevy_backend;
+
 /// Prelude module for backend implementors.
 ///
 /// Re-exports all traits and types required to implement a rendering backend. Prefer importing
@@ -87,8 +90,6 @@ pub mod prelude {
     doc = "See the [Bevy backend](https://github.com/cuppachino/pixel_perfect/tree/raster_font-v0.1.0/crates/raster_font/src/bevy_backend) for an example implementation."
 )]
 pub trait Backend {
-    type Atlas;
-    type Image;
     /// Backend-specific render resources stored inside every [`RasterFont`] for this backend.
     ///
     /// Fonts that own their resources can implement [`SpriteSheet`] directly on this

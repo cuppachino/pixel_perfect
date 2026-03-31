@@ -34,7 +34,9 @@
 //! rejects any attempt to call `build` before `populate_layout`, for example.
 use crate::{
     backend::{Backend, BackendBuilder, RasterFont},
-    core::{AtlasIndex, IGlyphOffset, Sequence, Token, UGlyphRegion, UGlyphSize, Unique},
+    core::{
+        AtlasIndex, IGlyphOffset, IGlyphRegion, Sequence, Token, UGlyphRegion, UGlyphSize, Unique,
+    },
     meta::{CustomGlyph, FontLayout, FontTrack, GlyphOverride, PackingMode},
 };
 
@@ -42,7 +44,6 @@ pub mod prelude {
     pub use super::{FontAtlasBuilder, GlyphSheet, errors::FontBuilderError};
 }
 
-use bevy_math::IRect;
 #[cfg(feature = "bevy")]
 use bevy_platform::collections::HashMap;
 #[cfg(not(feature = "bevy"))]
@@ -66,7 +67,7 @@ pub struct UTokenProps {
 /// once layout is complete.
 #[derive(Clone, Debug)]
 pub struct ITokenProps {
-    pub region: IRect,
+    pub region: IGlyphRegion,
     pub offset: IGlyphOffset,
 }
 
@@ -321,8 +322,8 @@ impl From<Unique<'_>> for FontAtlasBuilder {
 /// an unsigned rectangle.
 #[inline]
 #[must_use]
-fn extract_region(tile_start: IGlyphOffset, region: IRect) -> UGlyphRegion {
-    let region = IRect {
+fn extract_region(tile_start: IGlyphOffset, region: IGlyphRegion) -> UGlyphRegion {
+    let region = IGlyphRegion {
         min: tile_start + region.min,
         max: tile_start + region.max,
     };

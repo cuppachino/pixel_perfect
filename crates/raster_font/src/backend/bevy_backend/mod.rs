@@ -73,6 +73,8 @@ pub mod prelude {
         loader::{RasterFontAssetLoaderPlugin, RasterFontLoaderSettings},
     };
     pub use crate::tree::InputResolver;
+
+    pub type RasterFont = crate::backend::RasterFont<BevyBackend>;
 }
 
 use std::{error::Error, marker::PhantomData};
@@ -83,7 +85,7 @@ use bevy_image::{Image, ImageSampler, TextureAtlasLayout};
 use bevy_reflect::{Reflect, TypePath};
 use serde::{Deserialize, Serialize};
 
-use crate::{backend::prelude::*, bevy_backend::loader::RasterFontLoaderSettings};
+use crate::backend::{bevy_backend::loader::RasterFontLoaderSettings, prelude::*};
 
 /// Zero-sized tag struct that identifies the Bevy rendering backend.
 ///
@@ -105,8 +107,6 @@ use crate::{backend::prelude::*, bevy_backend::loader::RasterFontLoaderSettings}
 pub struct BevyBackend;
 
 impl Backend for BevyBackend {
-    type Atlas = TextureAtlasLayout;
-    type Image = Image;
     type Resources = BevyAtlasResources;
 }
 

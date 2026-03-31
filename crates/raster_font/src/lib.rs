@@ -180,9 +180,10 @@
 //! [`Sequence`]: crate::token::Sequence
 //! [`Token`]: crate::token::Token
 //! [`RasterFont`]: crate::prelude::RasterFont
+//! [`RasterFont::upgrade`]: crate::prelude::RasterFont::upgrade
+//! [`SpriteSheet`]: crate::backend::SpriteSheet
+//! [`FontResourceProvider`]: crate::backend::FontResourceProvider
 pub mod backend;
-#[cfg(feature = "bevy")]
-pub mod bevy_backend;
 pub mod builder;
 pub mod layout;
 pub mod meta;
@@ -206,13 +207,7 @@ pub mod prelude {
     pub use crate::backend::RasterFont;
 
     #[cfg(feature = "bevy")]
-    pub use bevy_compat::*;
-    #[cfg(feature = "bevy")]
-    mod bevy_compat {
-        pub type RasterFont = crate::backend::RasterFont<BevyBackend>;
-
-        pub use crate::bevy_backend::prelude::*;
-    }
+    pub use crate::backend::bevy_backend::prelude::*;
 }
 
 pub mod core {
@@ -266,6 +261,6 @@ pub mod core {
         pub index: AtlasIndex,
         /// Pixel offset applied at render time. Use this to nudge glyphs that don't
         /// sit naturally on the baseline or within their tile.
-        pub offset: IVec2,
+        pub offset: IGlyphOffset,
     }
 }

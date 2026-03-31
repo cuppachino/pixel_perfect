@@ -9,9 +9,8 @@ Data-driven raster fonts for pixel art games.
 
 ## Install
 
-```toml
-[dependencies]
-raster_font = "0.1.0"
+```ps1
+cargo add raster_font
 ```
 
 ## Quick Start
@@ -74,7 +73,11 @@ documented at [docs.rs/raster_font](https://docs.rs/raster_font).
 
 ## Roadmap
 
-- [ ] **Contextual glyph substitution** — e.g. when `S` is followed by `T`,
-      substitute a dedicated ligature region instead of the default `S` glyph.
-- [ ] **More backends**: currently only Bevy is supported, but the API is designed to be backend-agnostic and
-      should be implementable for any 2D rendering engine with a concept of sprite sheets.
+- [ ] **BIDI**: Unicode code points and bidirectional text layout. (right-to-left scripts, and
+      mixing of left-to-right and right-to-left text)
+- [ ] **Contextual glyph substitution**: e.g. when `S` is followed by `T`, allow substitution of
+      `S` instead of `ST` to enable kerning and ligatures without
+      needing to define separate sequences and glyphs for every combination of characters.
+- [ ] **More backends**: currently only Bevy is supported, but the API is designed
+      to be backend-agnostic and should be implementable for any 2D rendering engine
+      with a concept of sprite sheets.

@@ -8,12 +8,12 @@ use bevy_image::{Image, ImageSampler};
 use bevy_reflect::prelude::*;
 
 use crate::{
-    bevy_backend::{
+    backend::bevy_backend::{
         BuildBevyFont, LabeledAssetScopeError, loader::error::RasterFontAssetLoaderError,
+        prelude::RasterFont,
     },
     builder::{FontAtlasBuilder, GlyphSheet, errors::FontBuilderError},
     meta::FontMeta,
-    prelude::RasterFont,
 };
 
 /// Initialize the [`RasterFont`] asset type and [`RasterFontAssetLoader`] in a Bevy [`App`].
