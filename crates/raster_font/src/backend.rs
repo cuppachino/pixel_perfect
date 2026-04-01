@@ -57,7 +57,7 @@ use std::{error::Error, fmt::Debug, marker::PhantomData};
 use crate::{
     builder::RawFont,
     collections::HashMap,
-    core::{Sequence, AtlasIndex},
+    core::{AtlasIndex, Sequence},
     tree::{BuildError as LigatureBindingError, LigatureTree, MapLigature},
 };
 
@@ -73,7 +73,7 @@ pub mod prelude {
     pub use super::{Backend, BackendBuilder, FontResourceProvider, RasterFont, SpriteSheet};
     pub use crate::{
         builder::{RawFont, UTokenProps},
-        core::{IGlyphOffset, AtlasIndex},
+        core::{AtlasIndex, IGlyphOffset},
         tree::{AsLigatureTree, MapLigature},
     };
 }
@@ -401,7 +401,9 @@ pub struct RasterFontCtx<'f, 'r, Ctx: FontResourceProvider + 'r> {
     resources: Ctx::Output<'f, 'r>,
 }
 
-impl<'f, 'r, Ctx: FontResourceProvider> AsRef<LigatureTree<AtlasIndex>> for RasterFontCtx<'f, 'r, Ctx> {
+impl<'f, 'r, Ctx: FontResourceProvider> AsRef<LigatureTree<AtlasIndex>>
+    for RasterFontCtx<'f, 'r, Ctx>
+{
     #[inline]
     fn as_ref(&self) -> &LigatureTree<AtlasIndex> {
         &self.font.tree
