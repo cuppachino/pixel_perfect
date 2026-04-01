@@ -43,8 +43,18 @@ jobs:
           shared-key: lints
       - name: Install Linux dependencies (Bevy)
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libx264-164 libx264-dev
-      - name: Cargo doc
-        run: cargo doc --locked --workspace --no-deps --keep-going
+      - name: Cache cargo install binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: cargo-bin-${{ runner.os }}-cargo-hack-0.6
+      - name: Install cargo-hack if needed
+        run: |
+          if ! command -v cargo-hack >/dev/null; then
+            cargo install cargo-hack --locked
+          fi
+      - name: Cargo hack doc
+        run: cargo hack doc --locked --workspace --no-deps --feature-powerset --keep-going
   # ----------------------------------------
   # Per-crate feature validation (KEY JOB)
   # ----------------------------------------
