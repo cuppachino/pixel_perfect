@@ -17,7 +17,7 @@
 //!
 #![cfg_attr(
     feature = "bevy",
-    doc = "See the [Bevy backend](crate::bevy_backend) for a concrete example."
+    doc = "See the [Bevy backend](crate::backend::bevy_backend) for a concrete example."
 )]
 #![cfg_attr(
     not(feature = "bevy"),
@@ -84,7 +84,7 @@ pub mod prelude {
 ///
 #[cfg_attr(
     feature = "bevy",
-    doc = "See the [Bevy backend](crate::bevy_backend) for an example implementation."
+    doc = "See the [Bevy backend](crate::backend::bevy_backend) for an example implementation."
 )]
 #[cfg_attr(
     not(feature = "bevy"),
