@@ -18,8 +18,10 @@ empty_union = _{ UNION* }
 _multi_content = _{ multi_union | empty_union }
 _control_token = _{ START ~ _multi_content ~ CLOSE }
 
-// ? parses abc$(xyz|\$(\)|d)foo into [a,b,c, [xyz,$(),d], f,o,o]
+// * INPUT = abc$(xyz|\$(\)|d)foo
+// ? -> [a, ERROR(expect EOI)]
 single_token = _{ token ~ EOI }
+// ? -> [a,b,c, [xyz,$(),d], f,o,o]
 tokens = _{ token+ ~ EOI }
 token = _{
 	| _control_token

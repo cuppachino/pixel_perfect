@@ -1,93 +1,44 @@
 //! # ![Raster Font](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/raster_font.svg)
 //!
-//! Data-driven raster fonts for pixel art games.
+//! Raster Font is a declarative font format for authoring and using image-backed fonts.
 //!
-//! `raster_font` maps input text to regions in a texture atlas using a compact,
-//! authorable layout format. It supports multi-character sequences, unions that
-//! resolve multiple inputs to the same glyph, per-glyph overrides, and manually
-//! extracted glyphs for icons or irregular atlas regions.
+//! ## Design
 //!
-//! At runtime, input is resolved using **leftmost-longest matching**, so sequences
-//! like `->` naturally take precedence over their prefixes such as `-`.
+//! General-purpose text engines are designed to solve many problems at once: shaping,
+//! font fallback, layout, rasterization, editing, and platform integration across
+//! many scripts and font formats. In game development, working with vector fonts can be burdensome:
+//! if all you want is an authored set of glyphs, explicit ligatures, and pixel-perfect rendering,
+//! adopting standard font formats and text engines can be a tall order. You may find yourself
+//! fighting the shaping model of a text engine, or trying to shoehorn your assets into a format
+//! that prioritizes other use cases.
 //!
-//! ---
+//! Raster Font takes a narrower approach. Instead of deriving glyphs from codepoints
+//! through a runtime text pipeline, glyph resolution is baked into the font itself. A font
+//! declares the exact input sequences it accepts and the glyph each sequence resolves to.
+//! Input patterns are precompiled into efficient matching structures that can be used in a variety
+//! of game engines and rendering systems.
 //!
-//! ## Overview
+//! `raster_font` is not a general-purpose text engine, and it does not attempt to provide the
+//! shaping and script support of a full typography stack. It is designed for fonts whose glyph set,
+//! ligatures, spacing, and visual behavior are authored explicitly ahead of time. In return,
+//! "raster fonts" stay simple to define, predictable to resolve, and easy to
+//! render with crisp scaling and exact control over glyph mapping.
 //!
-//! A raster font in this crate consists of three layers:
+//! ## Authoring
 //!
-//! - **Layout** — an ordered sequence of tokens that define which inputs map to
-//!   which glyph slots.
-//! - **Metadata** — how those glyph slots are packed into a texture atlas.
-//! - **Backend resources** — the runtime representation used for rendering.
+//! The Raster Font format supports multi-character sequences, unions of sequences bound to
+//! shared glyphs, per-glyph overrides, and manual glyph extraction.
 //!
-//! These are intentionally separated so the same font data can be used across
-//! different engines or rendering systems.
+//! Creating a pixel-perfect font is a simple as opening your favorite image editor, drawing some
+//! glyphs, and writing a simple TOML file to describe your font's layout and behavior.
 //!
-//! The crate is organized accordingly:
+//! See the [meta documentation](meta) and [layout documentation](layout) for details on the font
+//! format and authoring process.
 //!
-//! - [`token`] — input sequences and token definitions
-//! - [`layout`] — parsing and representing layout strings
-//! - [`meta`] — the font asset format (TOML)
-//! - [`tree`] — runtime glyph matching
-//! - [`builder`] — constructing [`RasterFont`]
-//! - [`backend`] — backend abstraction
-#![cfg_attr(
-    feature = "bevy",
-    doc = "    - [`bevy_backend`] — Bevy integration *(feature: `bevy`)*"
-)]
+//! ## Resolution
 //!
-//! ---
-//!
-//! ## Layout model
-//!
-//! The layout language is built around two concepts:
-//!
-//! - [`Sequence`] — an exact input string (`"a"`, `"->"`, `":)"`)
-//! - [`Token`] — one or more sequences that resolve to the same glyph
-//!
-//! Each token contributes exactly one glyph slot in the atlas.
-//!
-//! ```text
-//! a             # one glyph
-//! $(abc)        # one glyph, multi-character sequence
-//! $(->|=>)      # one glyph, multiple accepted inputs
-//! ```
-//!
-//! Layouts are parsed left-to-right, and ordering determines how glyphs are
-//! associated with atlas regions.
-//!
-//! ---
-//!
-//! ## Asset format
-//!
-//! Fonts are typically defined using a TOML file:
-//!
-//! ```toml
-//! name   = "Example Font"
-//! image  = "font.png"
-//! layout = "abc$(->|=>)"
-//!
-//! [pack]
-//! size   = [8, 8]
-//! region = { min = [0, 0], max = [8, 8] }
-//! ```
-//!
-//! This describes:
-//!
-//! - the source image
-//! - the ordered layout
-//! - how glyph regions are extracted
-//!
-//! See [`meta`] for the full format.
-//!
-//! ---
-//!
-//! ## Resolving text
-//!
-//! A [`RasterFont`] resolves input text into glyphs using the
-//! [`InputResolver`](tree::InputResolver) API. [`valid`] produces an iterator of leftmost-longest
-//! matches, silently skipping unmatched input.
+//! A [`RasterFont`] maps input text to valid glyphs using the [`InputResolver`](tree::InputResolver)
+//! API. [`valid`] produces an iterator of leftmost-longest matches, silently skipping unmatched input.
 //!
 //! ```rust
 //! use raster_font::{backend::prelude::*, tree::InputResolver};
@@ -98,40 +49,33 @@
 //! }
 //! ```
 //!
-//! See [`valid_stream`] to handle errors or inspect unmatched input.
+//! ---
+//!
+//! ## First-party backends
+//!
+//! These crates have a stable release cycle and are considered reasonable for `raster_font` to
+//! maintain integration with:
+//!
+//! | Backend            | Feature      | Description |
+//! | :----------------: | :----------: | :---------- |
+//! | [Bevy game engine] | `bevy`       | Enables integration with Bevy’s asset system by providing `Asset` implementations for `RasterFont` and the `RasterFontAssetLoaderPlugin`. |
+//!
+//! ## Example backends
+//!
+//! The following examples are available in the crate repository.
+//!
+//! | Example      | Description |
+//! | :----------- | :---------- |
+//! | `bevy_asset` | Demonstrates using the first-party bevy backend to load raster fonts as assets. |
+//! | `macroquad`  | Demonstrates implementing a custom backend for [Macroquad] and loading a font using the [builder API](crate::builder). |
+//!
+//! Open an issue if you'd like to see an integration example for a specific engine or framework.
 //!
 //! ---
 //!
-//! ## Backends
+//! ## Bevy integration
 //!
-//! `RasterFont` is backend-agnostic. This crate separates font data from runtime
-//! resources so it can integrate with different engines.
-//!
-//! A backend defines:
-//!
-//! - resource representation
-//! - how resources are constructed
-//!
-//! There are two common integration patterns:
-//!
-//! ### Owned resources
-//!
-//! The font directly owns its render resources.
-//!
-//! Implement [`SpriteSheet`] and use [`RasterFont`] directly.
-//!
-//! ### External resources
-//!
-//! Resources are stored elsewhere (e.g. asset systems).
-//!
-//! Implement [`FontResourceProvider`] and use [`RasterFont::upgrade`] to obtain
-//! a [`RasterFontCtx`](backend::RasterFontCtx) for glpyh resolution.
-//!
-//! ---
-//!
-//! ## Bevy
-//!
-//! Enable the `bevy` feature to use the built-in Bevy integration.
+//! Enable the `bevy` feature to use the built-in Bevy backend.
 //!
 //! ```no_run
 //! # #[cfg(feature = "bevy")]
@@ -153,23 +97,14 @@
 //! }
 //! ```
 //!
-//! The Bevy backend loads fonts as assets containing:
-//!
-//! - a texture atlas layout
-//! - a font image
-//!
-//! These are resolved at runtime via Bevy’s asset system.
-//!
 //! ---
 //!
-//! ## Getting started
+//! ## Common modules
 //!
-//! - Use [`prelude`] for common imports
-//! - See [`meta`] for authoring fonts
-//! - Enable `bevy` for Bevy integration
-//! - See [`backend`] if implementing your own integration
+//! - Use [`prelude`] for common types and traits for consuming fonts.
+//! - Use [`backend`] if implementing your own integration.
+//! - Use [`core`] for core types like [`Sequence`], [`Token`], and [`AtlasIndex`].
 //!
-//! ---
 //!
 //! ## Feature flags
 //!
@@ -178,8 +113,7 @@
 //! | `bevy`              | Enables Bevy asset loading and integration              |
 //! | `font_sequence_map` | Enables direct sequence lookup via `RasterFont::get`    |
 //!
-//! ---
-//!
+//! [`AtlasIndex`]: crate::core::AtlasIndex
 //! [`Sequence`]: crate::token::Sequence
 //! [`Token`]: crate::token::Token
 //! [`RasterFont`]: crate::prelude::RasterFont
@@ -188,6 +122,8 @@
 //! [`FontResourceProvider`]: crate::backend::FontResourceProvider
 //! [`valid`]: crate::tree::InputResolver::valid
 //! [`valid_stream`]: crate::tree::InputResolver::valid_stream
+//! [Bevy game engine]: https://bevyengine.org/
+//! [Macroquad]: https://macroquad.rs/
 pub mod backend;
 pub mod builder;
 pub mod layout;

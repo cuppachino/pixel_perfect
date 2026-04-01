@@ -41,8 +41,8 @@
 //!
 //! # Feature flags
 //!
-//!| Feature | Effect |
-//!| :-----: | :----- |
+//!| Feature             | Effect                                                                                                     |
+//!| :-----------------: | :--------------------------------------------------------------------------------------------------------- |
 //!| `font_sequence_map` | Adds a `HashMap` alongside the ligature tree, enabling O(1) single-sequence lookup with `RasterFont::get`. |
 //!
 //! [`FontAtlasBuilder`]: crate::builder::FontAtlasBuilder
@@ -57,7 +57,7 @@ use std::{error::Error, fmt::Debug, marker::PhantomData};
 use crate::{
     builder::RawFont,
     collections::HashMap,
-    core::{AtlasIndex, Sequence},
+    core::{Sequence, AtlasIndex},
     tree::{BuildError as LigatureBindingError, LigatureTree, MapLigature},
 };
 
@@ -73,7 +73,7 @@ pub mod prelude {
     pub use super::{Backend, BackendBuilder, FontResourceProvider, RasterFont, SpriteSheet};
     pub use crate::{
         builder::{RawFont, UTokenProps},
-        core::{AtlasIndex, IGlyphOffset},
+        core::{IGlyphOffset, AtlasIndex},
         tree::{AsLigatureTree, MapLigature},
     };
 }
@@ -401,9 +401,7 @@ pub struct RasterFontCtx<'f, 'r, Ctx: FontResourceProvider + 'r> {
     resources: Ctx::Output<'f, 'r>,
 }
 
-impl<'f, 'r, Ctx: FontResourceProvider> AsRef<LigatureTree<AtlasIndex>>
-    for RasterFontCtx<'f, 'r, Ctx>
-{
+impl<'f, 'r, Ctx: FontResourceProvider> AsRef<LigatureTree<AtlasIndex>> for RasterFontCtx<'f, 'r, Ctx> {
     #[inline]
     fn as_ref(&self) -> &LigatureTree<AtlasIndex> {
         &self.font.tree

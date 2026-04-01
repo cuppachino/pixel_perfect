@@ -22,13 +22,13 @@
 //! layout string syntax. [`Token::parse`] and [`Sequence::new`] are convenience
 //! constructors for cases where parse errors are not expected.
 //!
-//!| Input string   | Parsed as                                                      | Description                   |
-//!| -------------- | -------------------------------------------------------------- | :---------------------------- |
-//!| `a`            | `Token([Sequence("a")])`                                       | one sequence, one char        |
-//!| `$(->)`        | `Token([Sequence("->")])`                                      | one sequence, multiple chars  |
-//!| `$(->\|=>)`    | `Token([Sequence("->"), Sequence("=>")])`                      | either `->` or `=>`           |
-//!| `$(\|)`        | `Token([Sequence("\|")])`                                      | escaped union char `\|`       |
-//!| `$(\$(\|\\|\|\))`  | `Token([Sequence("$("), Sequence("\|")], Sequence("\)")])` | escaped `$(` or `|` or `)`    |
+//!| Input string   | Parsed as                                                                         | Description                   |
+//!| -------------- | --------------------------------------------------------------------------------- | :---------------------------- |
+//!| `a`            | `Token([Sequence("a")])`                                                          | one sequence, one char        |
+//!| `$(->)`        | `Token([Sequence("->")])`                                                         | one sequence, multiple chars  |
+//!| `$(->\|=>)`    | `Token([Sequence("->"), Sequence("=>")])`                                         | either `->` or `=>`           |
+//!| `$(\|)`        | `Token([Sequence("\|")])`                                                         | escaped union char `\|`       |
+//!| <code>$(\$(\\&#124;\&#124;\\))</code> | `Token([Sequence("$("), Sequence("\|")], Sequence(")")])`  | escaped `$(` or `\|` or `)`   |
 //!
 //! [`OrdTokenLayout`]: crate::core::OrdTokenLayout
 //! [`FromStr`]: std::str::FromStr
@@ -115,8 +115,8 @@ pub struct Token(Vec<Sequence>);
 /// Properties:
 /// - Must be **non-empty**
 /// - Matches **exactly** (no regex or partial matching)
-/// - Can be multi-character (`"->"`, `"foo"`)
-/// - Can include normally special syntax as literal text (`"$(foo)"`)
+/// - Can be multi-character (`->`, `foo`)
+/// - Can include normally special syntax as literal text (`$(foo)`)
 ///
 /// Multiple `Sequence`s may map to the same glyph if they grouped together in a `Token` (e.g., `$(->|=>)`).
 ///
@@ -507,6 +507,11 @@ impl<'de> Deserialize<'de> for Token {
 #[cfg(test)]
 mod parser_tests {
     use super::*;
+
+    #[test]
+    fn test_simple() {
+        println!("{}", Token::parse("$(:))").unwrap());
+    }
 
     #[test]
     fn token_parser() {
