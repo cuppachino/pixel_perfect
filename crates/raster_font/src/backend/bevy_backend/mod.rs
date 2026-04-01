@@ -96,18 +96,6 @@ use crate::{
 ///
 /// Pass this as the type parameter of [`RasterFont<BevyBackend>`] to produce a
 /// font asset that integrates with Bevy's asset and rendering systems.
-///
-/// # Backend type family
-///
-///| Associated type        | Concrete type          |
-///| :--------------------- | ---------------------- |
-///| `Backend::Atlas`       | [`TextureAtlasLayout`] |
-///| `Backend::Image`       | [`Image`]              |
-///| `Backend::Resources`   | [`BevyAtlasResources`] |
-///
-/// [`Backend::Atlas`]: crate::backend::Backend::Atlas
-/// [`Backend::Image`]: crate::backend::Backend::Image
-/// [`Backend::Resources`]: crate::backend::Backend::Resources
 #[derive(Clone, Copy, Debug, Default, Reflect, Serialize, Deserialize)]
 pub struct BevyBackend;
 

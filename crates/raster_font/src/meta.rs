@@ -1,26 +1,27 @@
 //! Serialization types for the raster font asset format.
 //!
-//! Most users will not need to interact with this module directly.
+//! # Example TOML
 //!
-//! # Format
-//!
-//! A raster font asset is a TOML file with the following top-level shape:
+//! A raster font asset is a TOML file (and accompanying image) with the following top-level shape:
 //!
 //! ```toml
-//! layout = "abc$(->|=>)xyz"   # OrdTokenLayout string
-//! image  = "font.png"         # relative path to the font texture
+//! layout = "abc$(->|=>)xyz"       # OrdTokenLayout string
+//! image  = "font.png"             # relative path to the font texture
 //!
-//! [pack]                      # PackingMode — uniform grid or dynamic tracks
+//! [pack]                          # PackingMode — uniform grid or dynamic tracks
 //! size   = [8, 8]
 //! region = { min = [0, 0], max = [8, 8] }
 //!
-//! [override."a"]              # Optional per-glyph overrides (region, offset)
+//! [override."a"]                  # Optional per-glyph overrides (region, offset)
 //! region = [[0, 0], [6, 8]]
 //!
-//! [extract."$(:))"]           # Manually extracted glyphs (ligatures, icons, etc.)
-//! # ref    = "a"                # Extract relative to the region of "a" in the atlas
+//! [extract."$(:\))"]              # Manually extracted glyphs (ligatures, icons, etc.)
+//! # ref    = "a"                  # Extract relative to the region of "a" in the atlas
 //! region = [[128, 0], [136, 8]]
 //! ```
+//!
+//! Most users will not need to interact with this module directly. See the [token module](crate::token)
+//! and the [layout module](crate::layout) for token and sequence syntax.
 //!
 //! See [`PackingMode`] for details on uniform vs. dynamic atlas layouts, and
 //! [`CustomGlyph`] for how to manually extract glyph regions.
@@ -201,6 +202,21 @@ pub struct GlyphOverride {
     pub offset: Option<IGlyphOffset>,
 }
 
+/// A manually extracted glyph that doesn't fit the regular packing mode.
+///
+/// # Relative Example
+///
+/// Reuse the base stroke of an `"L"` glyph as an underscore `"_"` by manually extracting its region
+/// relative to the position of `"L"` in the atlas.
+///
+/// ```toml
+/// [pack]
+/// size    = [8, 8]
+///
+/// [extract."_"]
+/// ref     = "L"
+/// region  = [[0, 6], [8, 8]] # the bottom 2 pixels of the "L" tile.
+/// ```
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum CustomGlyph {

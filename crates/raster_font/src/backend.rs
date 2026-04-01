@@ -17,7 +17,7 @@
 //!
 #![cfg_attr(
     feature = "bevy",
-    doc = "See the [Bevy backend](crate::bevy_backend) for a concrete example."
+    doc = "See the [Bevy backend](crate::backend::bevy_backend) for a concrete example."
 )]
 #![cfg_attr(
     not(feature = "bevy"),
@@ -41,8 +41,8 @@
 //!
 //! # Feature flags
 //!
-//!| Feature | Effect |
-//!| :-----: | :----- |
+//!| Feature             | Effect                                                                                                     |
+//!| :-----------------: | :--------------------------------------------------------------------------------------------------------- |
 //!| `font_sequence_map` | Adds a `HashMap` alongside the ligature tree, enabling O(1) single-sequence lookup with `RasterFont::get`. |
 //!
 //! [`FontAtlasBuilder`]: crate::builder::FontAtlasBuilder
@@ -84,7 +84,7 @@ pub mod prelude {
 ///
 #[cfg_attr(
     feature = "bevy",
-    doc = "See the [Bevy backend](crate::bevy_backend) for an example implementation."
+    doc = "See the [Bevy backend](crate::backend::bevy_backend) for an example implementation."
 )]
 #[cfg_attr(
     not(feature = "bevy"),

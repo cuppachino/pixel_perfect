@@ -13,13 +13,15 @@
 //! #     meta::FontLayout
 //! # };
 //! #
-//! fn build_font<B: Backend, Builder, Image>(
+//! fn build_font<Backend, Builder, Image>(
 //!     name: Option<String>,
 //!     layout: FontLayout,
 //!     sheet: GlyphSheet<Image>,
 //!     backend_builder: Builder,
 //! ) -> Result<RasterFont<B>, FontBuilderError<Builder::Error>>
-//!     where Builder: BackendBuilder<Backend = B, Error: Error, Sheet = Image>
+//!     where
+//!         Backend: Backend,
+//!         Builder: BackendBuilder<Backend = Backend, Error: Error, Sheet = Image>
 //! {
 //!     FontAtlasBuilder::from(layout.unique()) // reserve capacity for the number of unique glyphs and sequences in the layout.
 //!         .with_image(sheet)                  // attach the glyph sprite sheet
@@ -142,21 +144,19 @@ use _marker::{ImageMarker, Marker};
 
 /// A staged builder for constructing a [`RasterFont`].
 ///
-/// The three type parameters enforce correct build order at compile time:
-///
-/// | Parameter         | Default                       | Meaning                                                |
-/// | :---------------: | :---------------------------- | :----------------------------------------------------- |
-/// | `LayoutPopulated` | [`Unpopulated`]               | Whether glyph regions have been computed from a layout |
-/// | `CustomPopulated` | [`Unpopulated`]               | Whether custom/hand-specified glyphs have been added   |
-/// | `Image`           | `PhantomData<Unpopulated>`    | The attached sprite sheet, or absent if not yet set    |
-/// | `Named`           | [`Unpopulated`]               | Whether the font has been named                        |
+///| Parameter         | Default                       | Meaning                                                |
+///| :---------------: | :---------------------------- | :----------------------------------------------------- |
+///| `LayoutPopulated` | `Unpopulated`                 | Whether glyph regions have been computed from a layout |
+///| `CustomPopulated` | `Unpopulated`                 | Whether custom/hand-specified glyphs have been added   |
+///| `Image`           | `PhantomData<Unpopulated>`    | The attached sprite sheet, or absent if not yet set    |
+///| `Named`           | `Unpopulated`                 | Whether the font has been named                        |
 ///
 /// Methods that require a specific phase to have been completed are only present on the
 /// corresponding specialisation, so missing a step results in a compile error rather than a
 /// runtime panic or silently producing an invalid font.
 ///
-/// Construct a builder with [`default`](Self::default) or [`with_capacity`](Self::with_capacity),
-/// then follow the build sequence described in the [module docs](self).
+/// Construct a builder with `default` or [`with_capacity`](Self::with_capacity),
+/// then follow the build sequence described in the [module docs](crate::builder).
 #[derive(Clone, Debug)]
 pub struct FontAtlasBuilder<
     LayoutPopulated: Marker = Unpopulated,

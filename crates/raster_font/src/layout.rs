@@ -1,22 +1,18 @@
 //! Representation and parsing of ordered font token layouts.
 //!
-//! This module provides [`OrdTokenLayout`], a structured sequence of [`Token`]s parsed
-//! from a compact layout string. Layout strings are used to describe the expected glyph
-//! slots of a raster font. Each slot may accept one or more input patterns, called
-//! [`Sequence`]s.
+//! A layout string is a series of *[`Token`] expressions*, parsed left to right. Whitespace is
+//! preserved and significant. Token order determines how glyphs are associated with atlas regions.
+//! Each token contributes exactly one glyph slot in an atlas, but may contain one or more valid
+//! input sequences mapped to that [`AtlasIndex`].
 //!
-//! # Layout String Syntax
+//! Layouts and tokens may appear similar in string form, but they represent
+//! different concepts:
 //!
-//! A layout string is a series of *token expressions*, parsed left to right:
+//! - A layout is an ordered *list of tokens*.
+//! - A token is a *set of sequences* that resolve to the same glyph.
 //!
-//! | Syntax              | Meaning                                                         |
-//! |---------------------|-----------------------------------------------------------------|
-//! | `a`                 | A single literal character — one glyph slot, one sequence.      |
-//! | `$(abc)`            | A multi-character sequence `"abc"` — one glyph slot.            |
-//! | `$(abc\|def)`       | A union token — one glyph slot accepting `"abc"` or `"def"`.    |
-//! | `\$(`, `\)`, `\\|` | Escape sequences for literal `$(`, `)`, and `\|`.               |
-//!
-//! Whitespace is preserved and significant.
+//! Attempting to parse a layout string as a [`Token`] will fail, since a token
+//! cannot contain multiple tokens.
 //!
 //! # Examples
 //!
@@ -25,11 +21,16 @@
 //! ```
 //! use raster_font::core::OrdTokenLayout;
 //!
-//! // Three glyph slots: 'a', 'b', 'c'
 //! let layout = OrdTokenLayout::parse("abc");
 //! let unique = layout.unique();
 //! assert_eq!(unique.num_regions, 3);
 //! assert_eq!(unique.sequences.len(), 3);
+//!
+//! let mut token_iter = layout.iter_tokens();
+//! assert_eq!(token_iter.next(), Some(&Token::from(Sequence::from('a'))));
+//! assert_eq!(token_iter.next(), Some(&Token::from(Sequence::from('b'))));
+//! assert_eq!(token_iter.next(), Some(&Token::from(Sequence::from('c'))));
+//! assert_eq!(token_iter.next(), None);
 //! ```
 //!
 //! Union tokens allow alternate input patterns for a single glyph slot:
@@ -37,11 +38,22 @@
 //! ```
 //! use raster_font::core::OrdTokenLayout;
 //!
-//! // One glyph slot that accepts either "Hello" or "hello"
-//! let layout = OrdTokenLayout::parse("$(Hello|hello)");
+//! // One glyph slot that accepts either "Hello" or "hello", followed by a "!" slot.
+//! let layout = OrdTokenLayout::parse("$(Hello|hello)!");
 //! let unique = layout.unique();
 //! assert_eq!(unique.num_regions, 1);
 //! assert_eq!(unique.sequences.len(), 2);
+//!
+//! let mut token_iter = layout.iter_tokens();
+//! assert_eq!(
+//!     token_iter.next(),
+//!     Some(&Token::from(vec![
+//!         Sequence::from("Hello"),
+//!         Sequence::from("hello")
+//!     ]))
+//! );
+//! assert_eq!(token_iter.next(), Some(&Token::from(Sequence::from('!'))));
+//! assert_eq!(token_iter.next(), None);
 //! ```
 //!
 //! # Serialization
@@ -50,6 +62,7 @@
 //! its layout string representation. It also implements [`Display`] and [`FromStr`] for
 //! convenient string conversion.
 //!
+//! [`AtlasIndex`]: crate::core::AtlasIndex
 //! [`Token`]: crate::token::Token
 //! [`Sequence`]: crate::token::Sequence
 //! [`Display`]: std::fmt::Display
