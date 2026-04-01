@@ -1,6 +1,6 @@
 //! # ![Raster Font](https://raw.githubusercontent.com/cuppachino/pixel_perfect/refs/heads/main/assets/brand/logo/raster_font.svg)
 //!
-//! Raster Font is a declarative font format for authoring and using image-backed fonts.
+//! Raster Font is a declarative format for authoring and using image-backed fonts.
 //!
 //! ## Design
 //!

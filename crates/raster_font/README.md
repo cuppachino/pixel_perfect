@@ -5,7 +5,18 @@
 [![docs.rs](https://img.shields.io/docsrs/raster_font?label=docs.rs)](https://docs.rs/raster_font)
 ![Deps.rs Crate Dependencies (specific version)](https://img.shields.io/deps-rs/bevy/0.18.1?logo=bevy&label=Bevy&link=https%3A%2F%2Fdocs.rs%2Fbevy%2F0.18.1%2Fbevy%2F)
 
-Data-driven raster fonts for pixel art games.
+Raster Font is a declarative format for authoring and using image-backed fonts.
+
+---
+
+You may be looking for:
+
+- [Top-level docs](https://docs.rs/raster_font)
+- [TOML schema](https://docs.rs/raster_font/latest/raster_font/meta)
+- [Layout syntax](https://docs.rs/raster_font/latest/raster_font/layout)
+- [Bevy integration](https://docs.rs/raster_font/latest/raster_font/#bevy-integration)
+- [Examples](https://github.com/cuppachino/pixel_perfect/tree/main/crates/raster_font/examples)
+- [Repository](https://github.com/cuppachino/pixel_perfect)
 
 ## Install
 
@@ -20,14 +31,48 @@ Author a font in TOML:
 ```toml
 name   = "Example Font"
 image  = "font.png"
-layout = "abc$(->|=>)"
+layout = "abc$(->|=>)$(:\))Helowrd!"
 
 [pack]
 size   = [8, 8]
 region = { min = [0, 0], max = [8, 8] }
 ```
 
-Load it in Bevy using the `bevy` feature:
+`valid` returns an iterator of leftmost-longest input matches against the font's glyphs:
+
+```rust
+use raster_font::{backend::prelude::*, tree::InputResolver};
+
+// Fonts with owned resources:
+fn draw<B: Backend<Resources: SpriteSheet>>(font: &RasterFont<B>) {
+    for glyph in font.valid("Hello -> world :)") {
+        // Draw glyph
+    }
+}
+
+
+// Fonts with borrowed resources:
+fn draw_with<B: Backend>(
+    font: &RasterFont<B>,
+    provider: &impl FontResourceProvider<Backend = B>,
+) {
+    // Upgrade the font a `RasterFontCtx`
+    let Ok(font_ctx) = font.upgrade(provider) else {
+        return;
+    };
+
+    for glyph in font_ctx.valid("Hello world!") {
+        // Draw glyph
+    };
+}
+
+```
+
+---
+
+### Bevy Integration
+
+Load it with Bevy using the `bevy` feature:
 
 ```rust
 use bevy::prelude::*;
@@ -40,24 +85,37 @@ fn main() {
         .run();
 }
 
-fn load_font(asset_server: Res<AssetServer>) {
-    let _font: Handle<RasterFont> = asset_server.load("font.toml");
+#[derive(Resource)]
+struct MyFont(Handle<RasterFont>);
+
+fn load_font(asset_server: Res<AssetServer>, mut commands: Commands) {
+    let font: Handle<RasterFont> =
+        asset_server.load("font.toml");
+
+    commands.insert_resource(MyFont(font));
 }
-```
 
-Resolve input text into glyphs at runtime:
+fn render_text(
+    mut commands: Commands,
+    font: Res<MyFont>,
+    layouts: Res<Assets<TextureAtlasLayout>>,
+) {
+    let Some(font) = font_assets.get(font) else {
+        warn!("Font {font:?} not loaded yet");
+        return;
+    };
 
-```rust
-use raster_font::{backend::prelude::*, tree::InputResolver};
-
-fn draw<B: Backend<Resources: SpriteSheet>>(font: &RasterFont<B>) {
-    for glyph in font.valid("Hello -> world :)") {
-        // Draw glyph
+    // The bevy backend follows the borrowed resources pattern.
+    for glyph in font
+        .upgrade(&*texture_atlas_layout_assets)
+        .expect("Texture atlas must be loaded if font is loaded")
+        .valid("Hello, Bevy world!")
+        .map(Option::unwrap)
+    {
+        // Draw glyph using region and offset data...
     }
 }
 ```
-
-Matching is leftmost-longest, so sequences like `->` naturally take precedence over their prefixes.
 
 ## Feature Flags
 
@@ -79,7 +137,7 @@ documented at [docs.rs/raster_font](https://docs.rs/raster_font).
 
 ## Roadmap
 
-- [ ] **BIDI**: Allow unicode to support bidirectional text layout. (right-to-left scripts, and
+- [ ] **BIDI**: Some form of unicode to support bidirectional text layout. (right-to-left scripts, and
       mixing of left-to-right and right-to-left text)
 - [ ] **Contextual glyph substitution**: e.g. when `S` is followed by `T`, allow substitution of
       `S` instead of `ST` to enable kerning and ligatures without
