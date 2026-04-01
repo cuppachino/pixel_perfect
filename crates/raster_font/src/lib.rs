@@ -6,8 +6,8 @@
 //!
 //! General-purpose text engines are designed to solve many problems at once: shaping,
 //! font fallback, layout, rasterization, editing, and platform integration across
-//! many scripts and font formats. In game development, working with vector fonts can be burdensome:
-//! if all you want is an authored set of glyphs, explicit ligatures, and pixel-perfect rendering,
+//! many scripts and font formats. In game development, working with vector fonts can be burdensome.
+//! If all you want is an authored set of glyphs, explicit ligatures, and pixel-perfect rendering,
 //! adopting standard font formats and text engines can be a tall order. You may find yourself
 //! fighting the shaping model of a text engine, or trying to shoehorn your assets into a format
 //! that prioritizes other use cases.
@@ -32,8 +32,7 @@
 //! Creating a pixel-perfect font is a simple as opening your favorite image editor, drawing some
 //! glyphs, and writing a simple TOML file to describe your font's layout and behavior.
 //!
-//! See the [meta documentation](meta) and [layout documentation](layout) for details on the font
-//! format and authoring process.
+//! See the [meta documentation](meta) details on the font format and authoring process.
 //!
 //! ## Resolution
 //!
@@ -53,8 +52,8 @@
 //!
 //! ## First-party backends
 //!
-//! These crates have a stable release cycle and are considered reasonable for `raster_font` to
-//! maintain integration with:
+//! The following crates have a stable/familiar release cycle and are considered reasonable for
+//! `raster_font` to maintain first-party backends for:
 //!
 //! | Backend            | Feature      | Description |
 //! | :----------------: | :----------: | :---------- |
@@ -91,9 +90,31 @@
 //! }
 //!
 //! # #[cfg(feature = "bevy")]
-//! fn load_font(asset_server: Res<AssetServer>) {
-//!     let _font: Handle<RasterFont> =
+//! fn load_font(asset_server: Res<AssetServer>, mut commands: Commands) {
+//!     let font: Handle<RasterFont> =
 //!         asset_server.load("font.toml");
+//!     
+//!     commands.insert_resource(MyFont(font));
+//! }
+//!
+//! # #[cfg(feature = "bevy")]
+//! fn render_text(
+//!     mut commands: Commands,
+//!     font: Res<MyFont>,
+//!     layouts: Res<Assets<TextureAtlasLayout>>,
+//! ) {
+//!     let Some(font) = font_assets.get(font) else {
+//!         warn!("Font {font:?} not loaded yet");
+//!         return;
+//!     };
+//!     for glyph in font
+//!         .upgrade(&*texture_atlas_layout_assets)
+//!         .expect("Texture atlas must be loaded if font is loaded")
+//!         .valid("Hello, Bevy world!")
+//!         .map(Option::unwrap)
+//!     {
+//!         // Draw glyph using region and offset data...
+//!     }
 //! }
 //! ```
 //!
