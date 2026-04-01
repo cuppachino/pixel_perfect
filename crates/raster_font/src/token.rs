@@ -1,26 +1,19 @@
 //! Primitive token and sequence types for defining raster fonts.
 //!
-//! Two types form the matching vocabulary for raster fonts:
+//! ## Tokens and Sequences
 //!
-//! - [`Sequence`]: An exact, non-empty string that maps to a single glyph
-//!   (`a`, `->`, `:)`). This is the atomic match unit during text parsing.
+//! Tokens, and sequences may appear similar in string form, but they represent
+//! different concepts:
 //!
-//! - [`Token`]: A set of one or more [`Sequence`]s that all resolve to the *same*
-//!   glyph. Tokens model unions: `$(->|=>)` means `->` and `=>` map to the same glyph.
-//!
-//! # Relationship to [Layout](crate::layout)
-//!
-//! An [`OrdTokenLayout`] is an ordered set of [`Token`]s, parsed from a layout string. The position
-//! of the token in the layout determines its glyph slot, alongside the [`PackingMode`] of a font.
+//! - **Token**: A set of one or more **sequences** that resolve to one glyph.
+//! - **Sequence**:  An ordered list of **chars** that form one valid input pattern.
 //!
 //! A token contributes exactly one glyph region to a font atlas, regardless of how many
 //! sequences it contains.
 //!
 //! # Parsing
 //!
-//! Both types implement [`FromStr`] and [`Display`], round-tripping through the
-//! layout string syntax. [`Token::parse`] and [`Sequence::new`] are convenience
-//! constructors for cases where parse errors are not expected.
+//! Examples of parsing tokens from strings:
 //!
 //!| Input string   | Parsed as                                                                         | Description                   |
 //!| -------------- | --------------------------------------------------------------------------------- | :---------------------------- |
@@ -29,6 +22,12 @@
 //!| `$(->\|=>)`    | `Token([Sequence("->"), Sequence("=>")])`                                         | either `->` or `=>`           |
 //!| `$(\|)`        | `Token([Sequence("\|")])`                                                         | escaped union char `\|`       |
 //!| <code>$(\$(\\&#124;\&#124;\\))</code> | `Token([Sequence("$("), Sequence("\|")], Sequence(")")])`  | escaped `$(` or `\|` or `)`   |
+//!
+//! Parsing a token as a sequence will succeed, but the resulting sequence may contain reserved
+//! syntax and is unlikely to be useful -- this is a footgun worth noting.
+//!
+//! See the [layout module documentation](crate::layout) for more information about how tokens and
+//! sequences are used in raster fonts.
 //!
 //! [`OrdTokenLayout`]: crate::core::OrdTokenLayout
 //! [`FromStr`]: std::str::FromStr
@@ -48,22 +47,15 @@ use std::{
     str::{Bytes, Chars, FromStr},
 };
 
-/// A token is one or more [`Sequence`]s that resolve to the same glyph.
+/// A token is a [`Sequence`] collection that maps to a single glyph.
 ///
-/// Tokens model the concept of input unions for a glyph slot: if a font
-/// has a single sprite for both `->` and `=>`, they are represented as one `Token`
-/// containing two sequences. All sequences in a token share exactly one atlas region.
-///
-/// # Relation to [Layout](crate::layout)
-///
-/// - `a`: a single-sequence token is written as a bare character.
-/// - `$(->)`: a grouped token with one sequence.
-/// - `$(->|=>)`: a union token with multiple sequences, separated by `|`.
+/// Tokens model the concept of input unions for a glyph slot: if a font would like `->` and `=>` to
+/// resolve to the same glyph, they can be represented as a single token of two sequences: `$(->|=>)`.
 ///
 /// ## Example
 ///
 /// ```rust
-/// use raster_font::token::{Sequence, Token};
+/// use raster_font::token::{Sequence, Token, TokenParsingError};
 ///
 /// let one_sequence = Token::parse("a").unwrap();
 /// assert_eq!(one_sequence.len(), 1);
@@ -74,6 +66,9 @@ use std::{
 /// let mut iter = two_sequences.iter();
 /// assert_eq!(iter.next().unwrap().as_str(), "->");
 /// assert_eq!(iter.next().unwrap().as_str(), "=>");
+///
+/// let broken_token = Token::parse("$(a|b)a").unwrap_err();
+/// assert!(matches!(broken_token, TokenParsingError::PestError(_)));
 /// ```
 ///
 /// # Reserved Syntax
@@ -107,26 +102,24 @@ use std::{
 #[cfg_attr(feature = "bevy", derive(Reflect), reflect(Debug))]
 pub struct Token(Vec<Sequence>);
 
-/// An exact, non-empty input pattern that maps to a glyph.
+/// A sequence is the **atomic match unit** used during text parsing.
 ///
-/// A `Sequence` is the **atomic match unit** used during text parsing.
-/// It represents an exact string that can be matched in the input stream.
+/// ## Properties
 ///
-/// Properties:
 /// - Must be **non-empty**
-/// - Matches **exactly** (no regex or partial matching)
-/// - Can be multi-character (`->`, `foo`)
-/// - Can include normally special syntax as literal text (`$(foo)`)
+/// - Must match **exactly**
+/// - Can include multiple characters (`->`, `foo`)
+/// - Can include reserved syntax as literal text (`$(foo)`)
 ///
-/// Multiple `Sequence`s may map to the same glyph if they grouped together in a `Token` (e.g., `$(->|=>)`).
+/// # Example
 ///
-/// Examples:
 /// ```text
 /// "a"       // single character
-/// "->"      // ligature
 /// "Samwise" // multi-character sequence
 /// "$(lit)"  // literal text that looks like a token
 /// ```
+///
+/// See the [token module documentation](crate::token) for more information about tokens and sequences.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "bevy", derive(Reflect), reflect(Debug))]
 #[serde(transparent)]
@@ -422,7 +415,6 @@ impl FromStr for Token {
                 let mut string = String::new();
 
                 for sub in sub_sequences {
-                    #[cfg(debug_assertions)]
                     debug_assert!(
                         matches!(sub.as_rule(), Rule::sub),
                         "Expected sub rule in multi_union sequence, found {:?}",
@@ -430,13 +422,6 @@ impl FromStr for Token {
                     );
 
                     for seq in sub.into_inner() {
-                        // std::debug_assert_matches!(
-                        //     seq.as_rule(),
-                        //     Rule::any_char | Rule::RESERVED,
-                        //     "Expected char or RESERVED rule in multi_union sub-sequence, found {:?}",
-                        //     seq.as_rule()
-                        // );
-                        #[cfg(debug_assertions)]
                         debug_assert!(
                             matches!(seq.as_rule(), Rule::any_char | Rule::RESERVED),
                             "Expected any_char or RESERVED rule in multi_union::sub::seq, found {:?}",

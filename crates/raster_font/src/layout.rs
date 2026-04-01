@@ -1,20 +1,28 @@
-//! Representation and parsing of ordered font token layouts.
+//! Parsable representation of ordered glyph tokens for raster font atlases.
 //!
-//! A layout string is a series of *[`Token`] expressions*, parsed left to right. Whitespace is
-//! preserved and significant. Token order determines how glyphs are associated with atlas regions.
-//! Each token contributes exactly one glyph slot in an atlas, but may contain one or more valid
-//! input sequences mapped to that [`AtlasIndex`].
+//! An [`OrdTokenLayout`] layout string is a series of *[`Token`] expressions*, parsed left to right.
+//! The position of a token in the layout determines its [`AtlasIndex`] in a raster font atlas. The
+//! size of the glyph is dependent on the font's [`PackingMode`].
 //!
-//! Layouts and tokens may appear similar in string form, but they represent
+//! ---
+//!
+//! ## Relationship to Tokens and Sequences
+//!
+//! Layouts, tokens, and sequences may appear similar in string form, but they represent
 //! different concepts:
 //!
-//! - A layout is an ordered *list of tokens*.
-//! - A token is a *set of sequences* that resolve to the same glyph.
+//! - **Layout**: An ordered list of **tokens** that define the structure of a font atlas.
+//! - **Token**: A set of one or more **sequences** that resolve to one glyph.
+//! - **Sequence**:  An ordered list of **chars** that form one valid input pattern.
 //!
 //! Attempting to parse a layout string as a [`Token`] will fail, since a token
 //! cannot contain multiple tokens.
 //!
-//! # Examples
+//! See the [token module documentation](crate::token) for more information about tokens and sequences.
+//!
+//! ---
+//!
+//! ## Examples
 //!
 //! Parsing a simple layout string:
 //!
@@ -56,7 +64,9 @@
 //! assert_eq!(token_iter.next(), None);
 //! ```
 //!
-//! # Serialization
+//! ---
+//!
+//! ## Serialization
 //!
 //! [`OrdTokenLayout`] implements [`Serialize`] and [`Deserialize`], round-tripping through
 //! its layout string representation. It also implements [`Display`] and [`FromStr`] for
@@ -69,7 +79,7 @@
 //! [`FromStr`]: std::str::FromStr
 //! [`Serialize`]: serde::Serialize
 //! [`Deserialize`]: serde::Deserialize
-
+//! [`PackingMode`]: crate::meta::PackingMode
 use pest::Parser;
 use pest_derive::Parser;
 use serde::{Deserialize, Serialize};
