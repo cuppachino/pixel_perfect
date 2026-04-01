@@ -144,12 +144,12 @@ use _marker::{ImageMarker, Marker};
 
 /// A staged builder for constructing a [`RasterFont`].
 ///
-/// | Parameter         | Default                       | Meaning                                                |
-/// | :---------------: | :---------------------------- | :----------------------------------------------------- |
-/// | `LayoutPopulated` | `Unpopulated`                 | Whether glyph regions have been computed from a layout |
-/// | `CustomPopulated` | `Unpopulated`                 | Whether custom/hand-specified glyphs have been added   |
-/// | `Image`           | `PhantomData<Unpopulated>`    | The attached sprite sheet, or absent if not yet set    |
-/// | `Named`           | `Unpopulated`                 | Whether the font has been named                        |
+///| Parameter         | Default                       | Meaning                                                |
+///| :---------------: | :---------------------------- | :----------------------------------------------------- |
+///| `LayoutPopulated` | `Unpopulated`                 | Whether glyph regions have been computed from a layout |
+///| `CustomPopulated` | `Unpopulated`                 | Whether custom/hand-specified glyphs have been added   |
+///| `Image`           | `PhantomData<Unpopulated>`    | The attached sprite sheet, or absent if not yet set    |
+///| `Named`           | `Unpopulated`                 | Whether the font has been named                        |
 ///
 /// Methods that require a specific phase to have been completed are only present on the
 /// corresponding specialisation, so missing a step results in a compile error rather than a
